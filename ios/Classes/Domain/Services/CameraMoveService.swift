@@ -59,7 +59,7 @@ final class CameraMoveService {
         self.locationService.getCurrentPosition { (coordinates) in
             self.moveToLocation(
                 position: DGis.CameraPosition(
-                    point: DGis.GeoPoint(
+                    point: DGis.DataGeoPoint(
                         latitude: .init(value: coordinates.latitude),
                         longitude: .init(value: coordinates.longitude)
                     ),

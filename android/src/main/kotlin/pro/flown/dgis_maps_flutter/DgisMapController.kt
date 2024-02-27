@@ -206,7 +206,7 @@ class DgisMapController internal constructor(
         objectManager.addObjects(updates.toAdd.map { toMarker(sdkContext, it!!) })
     }
 
-    override fun createRoute(startPoint: GeoPoint, endPoint: GeoPoint) {
+    override fun createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {
         // Ищем маршрут
         val routesFuture = trafficRouter.findRoute(
                 startPoint = RouteSearchPoint(
