@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'method_channel.g.dart';
-import 'types/types.dart' hide GeoPoint;
+import 'types/types.dart';
 
 /// Controller for a single DGis instance running on the host platform.
 class DGisMapController {
@@ -31,7 +31,8 @@ class DGisMapController {
   }
 
   /// Получение текущей позиции карты [CameraPosition]
-  Future<void> createRoute(GeoPoint startPoint, GeoPoint endPoint) async {
+  Future<void> createRoute(
+      DataGeoPoint startPoint, DataGeoPoint endPoint) async {
     await _completer.future;
     await _api.createRoute(startPoint, endPoint);
   }

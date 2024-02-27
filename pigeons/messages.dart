@@ -75,8 +75,8 @@ class DataMarker {
 }
 
 // TODO(kit): Documentation
-class GeoPoint {
-  GeoPoint(this.latitude, this.longitude);
+class DataGeoPoint {
+  DataGeoPoint(this.latitude, this.longitude);
 
   /// Координата долготы
   final double latitude;
@@ -256,7 +256,7 @@ abstract class PluginHostApi {
   /// Построение маршрута
   ///
   /// [createRoute] - объект с информацией построение маршрута
-  void createRoute(GeoPoint startPoint, GeoPoint endPoint);
+  void createRoute(DataGeoPoint startPoint, DataGeoPoint endPoint);
 
   /// Обновление полилайнов
   ///

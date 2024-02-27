@@ -182,8 +182,8 @@ class DataMarker {
   }
 }
 
-class GeoPoint {
-  GeoPoint({
+class DataGeoPoint {
+  DataGeoPoint({
     required this.latitude,
     required this.longitude,
   });
@@ -201,9 +201,9 @@ class GeoPoint {
     ];
   }
 
-  static GeoPoint decode(Object result) {
+  static DataGeoPoint decode(Object result) {
     result as List<Object?>;
-    return GeoPoint(
+    return DataGeoPoint(
       latitude: result[0]! as double,
       longitude: result[1]! as double,
     );
@@ -457,34 +457,34 @@ class _PluginHostApiCodec extends StandardMessageCodec {
     if (value is DataCameraPosition) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is DataLatLng) {
+    } else if (value is DataGeoPoint) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is DataLatLngBounds) {
+    } else if (value is DataLatLng) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is DataMapObjectId) {
+    } else if (value is DataLatLngBounds) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is DataMarker) {
+    } else if (value is DataMapObjectId) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is DataMarkerBitmap) {
+    } else if (value is DataMarker) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is DataMarkerUpdates) {
+    } else if (value is DataMarkerBitmap) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is DataPadding) {
+    } else if (value is DataMarkerUpdates) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is DataPolyline) {
+    } else if (value is DataPadding) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is DataPolylineUpdates) {
+    } else if (value is DataPolyline) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is GeoPoint) {
+    } else if (value is DataPolylineUpdates) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
@@ -499,34 +499,34 @@ class _PluginHostApiCodec extends StandardMessageCodec {
         return DataCameraPosition.decode(readValue(buffer)!);
       
       case 129:       
-        return DataLatLng.decode(readValue(buffer)!);
+        return DataGeoPoint.decode(readValue(buffer)!);
       
       case 130:       
-        return DataLatLngBounds.decode(readValue(buffer)!);
+        return DataLatLng.decode(readValue(buffer)!);
       
       case 131:       
-        return DataMapObjectId.decode(readValue(buffer)!);
+        return DataLatLngBounds.decode(readValue(buffer)!);
       
       case 132:       
-        return DataMarker.decode(readValue(buffer)!);
+        return DataMapObjectId.decode(readValue(buffer)!);
       
       case 133:       
-        return DataMarkerBitmap.decode(readValue(buffer)!);
+        return DataMarker.decode(readValue(buffer)!);
       
       case 134:       
-        return DataMarkerUpdates.decode(readValue(buffer)!);
+        return DataMarkerBitmap.decode(readValue(buffer)!);
       
       case 135:       
-        return DataPadding.decode(readValue(buffer)!);
+        return DataMarkerUpdates.decode(readValue(buffer)!);
       
       case 136:       
-        return DataPolyline.decode(readValue(buffer)!);
+        return DataPadding.decode(readValue(buffer)!);
       
       case 137:       
-        return DataPolylineUpdates.decode(readValue(buffer)!);
+        return DataPolyline.decode(readValue(buffer)!);
       
       case 138:       
-        return GeoPoint.decode(readValue(buffer)!);
+        return DataPolylineUpdates.decode(readValue(buffer)!);
       
       default:
         return super.readValueOfType(type, buffer);
@@ -653,7 +653,7 @@ class PluginHostApi {
   /// Построение маршрута
   ///
   /// [createRoute] - объект с информацией построение маршрута
-  Future<void> createRoute(GeoPoint arg_startPoint, GeoPoint arg_endPoint) async {
+  Future<void> createRoute(DataGeoPoint arg_startPoint, DataGeoPoint arg_endPoint) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'pro.flown.PluginHostApi_$id.createRoute', codec,
         binaryMessenger: _binaryMessenger);

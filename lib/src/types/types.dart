@@ -6,7 +6,7 @@ export 'bitmap.dart';
 export 'camera.dart';
 export 'enums.dart';
 export 'location.dart';
-export 'geo_point.dart';
+// export 'geo_point.dart';
 export 'map_object_id.dart';
 export 'marker.dart';
 export 'padding.dart';
