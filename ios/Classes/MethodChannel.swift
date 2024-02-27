@@ -180,17 +180,17 @@ struct DataMarker {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct GeoPoint {
+struct DataGeoPoint {
   /// Координата долготы
   var latitude: Double
   /// Координата широты
   var longitude: Double
 
-  static func fromList(_ list: [Any?]) -> GeoPoint? {
+  static func fromList(_ list: [Any?]) -> DataGeoPoint? {
     let latitude = list[0] as! Double
     let longitude = list[1] as! Double
 
-    return GeoPoint(
+    return DataGeoPoint(
       latitude: latitude,
       longitude: longitude
     )
@@ -414,25 +414,25 @@ private class PluginHostApiCodecReader: FlutterStandardReader {
       case 128:
         return DataCameraPosition.fromList(self.readValue() as! [Any])
       case 129:
-        return DataLatLng.fromList(self.readValue() as! [Any])
+        return DataGeoPoint.fromList(self.readValue() as! [Any])
       case 130:
-        return DataLatLngBounds.fromList(self.readValue() as! [Any])
+        return DataLatLng.fromList(self.readValue() as! [Any])
       case 131:
-        return DataMapObjectId.fromList(self.readValue() as! [Any])
+        return DataLatLngBounds.fromList(self.readValue() as! [Any])
       case 132:
-        return DataMarker.fromList(self.readValue() as! [Any])
+        return DataMapObjectId.fromList(self.readValue() as! [Any])
       case 133:
-        return DataMarkerBitmap.fromList(self.readValue() as! [Any])
+        return DataMarker.fromList(self.readValue() as! [Any])
       case 134:
-        return DataMarkerUpdates.fromList(self.readValue() as! [Any])
+        return DataMarkerBitmap.fromList(self.readValue() as! [Any])
       case 135:
-        return DataPadding.fromList(self.readValue() as! [Any])
+        return DataMarkerUpdates.fromList(self.readValue() as! [Any])
       case 136:
-        return DataPolyline.fromList(self.readValue() as! [Any])
+        return DataPadding.fromList(self.readValue() as! [Any])
       case 137:
-        return DataPolylineUpdates.fromList(self.readValue() as! [Any])
+        return DataPolyline.fromList(self.readValue() as! [Any])
       case 138:
-        return GeoPoint.fromList(self.readValue() as! [Any])
+        return DataPolylineUpdates.fromList(self.readValue() as! [Any])
       default:
         return super.readValue(ofType: type)
     }
@@ -444,34 +444,34 @@ private class PluginHostApiCodecWriter: FlutterStandardWriter {
     if let value = value as? DataCameraPosition {
       super.writeByte(128)
       super.writeValue(value.toList())
-    } else if let value = value as? DataLatLng {
+    } else if let value = value as? DataGeoPoint {
       super.writeByte(129)
       super.writeValue(value.toList())
-    } else if let value = value as? DataLatLngBounds {
+    } else if let value = value as? DataLatLng {
       super.writeByte(130)
       super.writeValue(value.toList())
-    } else if let value = value as? DataMapObjectId {
+    } else if let value = value as? DataLatLngBounds {
       super.writeByte(131)
       super.writeValue(value.toList())
-    } else if let value = value as? DataMarker {
+    } else if let value = value as? DataMapObjectId {
       super.writeByte(132)
       super.writeValue(value.toList())
-    } else if let value = value as? DataMarkerBitmap {
+    } else if let value = value as? DataMarker {
       super.writeByte(133)
       super.writeValue(value.toList())
-    } else if let value = value as? DataMarkerUpdates {
+    } else if let value = value as? DataMarkerBitmap {
       super.writeByte(134)
       super.writeValue(value.toList())
-    } else if let value = value as? DataPadding {
+    } else if let value = value as? DataMarkerUpdates {
       super.writeByte(135)
       super.writeValue(value.toList())
-    } else if let value = value as? DataPolyline {
+    } else if let value = value as? DataPadding {
       super.writeByte(136)
       super.writeValue(value.toList())
-    } else if let value = value as? DataPolylineUpdates {
+    } else if let value = value as? DataPolyline {
       super.writeByte(137)
       super.writeValue(value.toList())
-    } else if let value = value as? GeoPoint {
+    } else if let value = value as? DataPolylineUpdates {
       super.writeByte(138)
       super.writeValue(value.toList())
     } else {
@@ -515,7 +515,7 @@ protocol PluginHostApi {
   /// Построение маршрута
   ///
   /// [createRoute] - объект с информацией построение маршрута
-  func createRoute(startPoint: GeoPoint, endPoint: GeoPoint)
+  func createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint)
   /// Обновление полилайнов
   ///
   /// [polylineUpdates] - объект с информацией об обновлении полилайнов
@@ -605,8 +605,8 @@ class PluginHostApiSetup {
     if let api = api {
       createRouteChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let startPointArg = args[0] as! GeoPoint
-        let endPointArg = args[1] as! GeoPoint
+        let startPointArg = args[0] as! DataGeoPoint
+        let endPointArg = args[1] as! DataGeoPoint
         api.createRoute(startPoint: startPointArg, endPoint: endPointArg)
         reply(wrapResult(nil))
       }
