@@ -265,8 +265,8 @@ class DgisMapController internal constructor(
                 return SimpleClusterOptions(
                     icon = Image(
                         bitmap = BitmapDrawable(context.resources, ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).toBitmap()),
-                        width = LogicalPixel(drawable.intrinsicWidth.toFloat()),
-                        height = LogicalPixel(drawable.intrinsicHeight.toFloat())
+                        width = LogicalPixel(ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).intrinsicWidth.toFloat()),
+                        height = LogicalPixel(ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).intrinsicHeight.toFloat())
                     ),
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
