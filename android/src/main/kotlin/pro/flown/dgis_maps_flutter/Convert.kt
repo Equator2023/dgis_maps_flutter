@@ -102,6 +102,6 @@ fun toGeoPoint(latLng: DataLatLng): GeoPoint {
     )
 }
 
-fun toDataLatLng(latLng: DataGeoPoint): DataLatLng {
+fun toDataLatLng(latLng: GeoPoint): DataLatLng {
     return DataLatLng(latLng.latitude.value, latLng.longitude.value)
 }
