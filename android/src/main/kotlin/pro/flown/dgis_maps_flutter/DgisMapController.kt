@@ -263,11 +263,7 @@ class DgisMapController internal constructor(
                 val objectCount = cluster.objectCount
                 val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
                 return SimpleClusterOptions(
-                    icon = Image(
-                        bitmap = BitmapDrawable(context.resources, ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).toBitmap()),
-                        width = LogicalPixel(ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).intrinsicWidth.toFloat()),
-                        height = LogicalPixel(ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).intrinsicHeight.toFloat())
-                    ),
+                    icon = Image(),
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
                     textStyle = textStyle,
