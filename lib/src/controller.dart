@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'method_channel.g.dart';
-import 'types/types.dart' hide GeoPoint;
+import 'types/types.dart';
 
 /// Controller for a single DGis instance running on the host platform.
 class DGisMapController {
