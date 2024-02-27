@@ -254,25 +254,25 @@ class DgisMapController internal constructor(
     }
 
     override fun clusteringMarkers() {
-//        val clusterRenderer = object : SimpleClusterRenderer {
-//            override fun renderCluster(cluster: SimpleClusterObject): SimpleClusterOptions {
-//                val textStyle = TextStyle(
-//                    fontSize = LogicalPixel(15.0f),
-//                    textPlacement = TextPlacement.RIGHT_TOP
-//                )
-//                val objectCount = cluster.objectCount
-//                val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
-//                return SimpleClusterOptions(
+        val clusterRenderer = object : SimpleClusterRenderer {
+            override fun renderCluster(cluster: SimpleClusterObject): SimpleClusterOptions {
+                val textStyle = TextStyle(
+                    fontSize = LogicalPixel(15.0f),
+                    textPlacement = TextPlacement.RIGHT_TOP
+                )
+                val objectCount = cluster.objectCount
+                val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
+                return SimpleClusterOptions(
 //                    icon,
-//                    iconWidth = LogicalPixel(30.0f),
-//                    text = objectCount.toString(),
-//                    textStyle = textStyle,
-//                    iconMapDirection = iconMapDirection,
-//                    userData = objectCount.toString()
-//                )
-//            }
-//        }
-//
-//        objectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
+                    iconWidth = LogicalPixel(30.0f),
+                    text = objectCount.toString(),
+                    textStyle = textStyle,
+                    iconMapDirection = iconMapDirection,
+                    userData = objectCount.toString()
+                )
+            }
+        }
+
+        objectManager = MapObjectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
     }
 }
