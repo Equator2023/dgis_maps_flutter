@@ -21,6 +21,7 @@ import ru.dgis.sdk.map.Map
 import ru.dgis.sdk.positioning.registerPlatformLocationSource
 import ru.dgis.sdk.positioning.registerPlatformMagneticSource
 import ru.dgis.sdk.routing.*
+import ru.dgis.sdk.coordinates.GeoPoint
 
 class DgisMapController internal constructor(
         id: Int,
@@ -206,7 +207,7 @@ class DgisMapController internal constructor(
         objectManager.addObjects(updates.toAdd.map { toMarker(sdkContext, it!!) })
     }
 
-    override fun createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {
+    override fun createRoute(startPoint: GeoPoint, endPoint: GeoPoint) {
         // Ищем маршрут
         val routesFuture = trafficRouter.findRoute(
                 startPoint = RouteSearchPoint(
