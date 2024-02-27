@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 
 import 'controller.dart';
 import 'method_channel.g.dart';
-import 'types/types.dart';
+import 'types/types.dart' hide GeoPoint;
 
 typedef MapCreatedCallback = void Function(DGisMapController controller);
 typedef CameraStateChangedCallback = void Function(DataCameraState cameraState);
@@ -120,6 +120,11 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     );
   }
 
+  Future<void> _clusteringMarkers() async {
+    await _apiReady.future;
+    return api.clusteringMarkers();
+  }
+
   Future<void> onViewCreated(int id) async {
     api = PluginHostApi(id: id);
     final controller = DGisMapController(api, _apiReady, mapId: id);
@@ -129,6 +134,7 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     if (onMapCreated != null) {
       onMapCreated(controller);
     }
+    _clusteringMarkers();
   }
 
   @override

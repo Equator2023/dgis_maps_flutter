@@ -9,7 +9,6 @@ import FlutterMacOS
 #else
 #error("Unsupported platform.")
 #endif
-import DGis
 
 
 
@@ -528,6 +527,7 @@ protocol PluginHostApi {
   func changeMyLocationLayerState(isVisible: Bool)
   /// Получение координат текущего экрана
   func getVisibleArea() -> DataLatLngBounds
+  func clusteringMarkers()
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -652,6 +652,15 @@ class PluginHostApiSetup {
     } else {
       getVisibleAreaChannel.setMessageHandler(nil)
     }
+    let clusteringMarkersChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).clusteringMarkers", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      clusteringMarkersChannel.setMessageHandler { _, reply in
+        api.clusteringMarkers()
+        reply(wrapResult(nil))
+      }
+    } else {
+      clusteringMarkersChannel.setMessageHandler(nil)
+    }
   }
 }
 private class PluginFlutterApiCodecReader: FlutterStandardReader {
@@ -670,10 +679,7 @@ private class PluginFlutterApiCodecWriter: FlutterStandardWriter {
     if let value = value as? DataCameraStateValue {
       super.writeByte(128)
       super.writeValue(value.toList())
-    } else if let value = value as? RenderedObjectInfo {
-        super.writeByte(138)
-        super.writeValue([value.closestMapPoint.latitude.value, value.closestMapPoint.longitude.value])
-    }else {
+    } else {
       super.writeValue(value)
     }
   }
@@ -703,14 +709,6 @@ class PluginFlutterApi {
   }
   var codec: FlutterStandardMessageCodec {
     return PluginFlutterApiCodec.shared
-  }
-  /// Коллбэк на изменение состояния камеры
-  /// [cameraState] - индекс в перечислении [CameraState]
-  func onMapObjectTapCallback(renderedObjectInfo: DGis.RenderedObjectInfo) {
-    let channel = FlutterBasicMessageChannel(name: "fgis.ontap_marker", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([renderedObjectInfo] as [Any?]) { _ in
-        
-    }
   }
   /// Коллбэк на изменение состояния камеры
   /// [cameraState] - индекс в перечислении [CameraState]

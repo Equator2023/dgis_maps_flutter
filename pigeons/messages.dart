@@ -271,6 +271,9 @@ abstract class PluginHostApi {
 
   /// Получение координат текущего экрана
   DataLatLngBounds getVisibleArea();
+
+  // Кластеризация маркеров
+  void clusteringMarkers();
 }
 
 @FlutterApi()

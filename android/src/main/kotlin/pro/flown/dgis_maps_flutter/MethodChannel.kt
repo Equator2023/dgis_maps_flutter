@@ -589,6 +589,7 @@ interface PluginHostApi {
   fun changeMyLocationLayerState(isVisible: Boolean)
   /** Получение координат текущего экрана */
   fun getVisibleArea(): DataLatLngBounds
+  fun clusteringMarkers()
 
   companion object {
     /** The codec used by PluginHostApi. */
@@ -744,6 +745,23 @@ interface PluginHostApi {
             var wrapped = listOf<Any?>()
             try {
               wrapped = listOf<Any?>(api.getVisibleArea())
+            } catch (exception: Error) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginHostApi_$id.clusteringMarkers", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped = listOf<Any?>()
+            try {
+              api.clusteringMarkers()
+              wrapped = listOf<Any?>(null)
             } catch (exception: Error) {
               wrapped = wrapError(exception)
             }
