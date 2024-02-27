@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'controller.dart';
-import 'method_channel.g.dart';
+import 'method_channel.g.dart' hide GeoPoint;
 import 'types/types.dart';
 
 typedef MapCreatedCallback = void Function(DGisMapController controller);
@@ -228,7 +228,7 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
   @override
   void onMapObjectTapped(dynamic) {
     final list = _markers;
-    if (dynamic is DataGeoPoint) {
+    if (dynamic is GeoPoint) {
       Marker? _selectedMarker = findNearestGeoPoint(dynamic, _markers);
       if (_selectedMarker != null) {
         widget.onTapMarker(_selectedMarker);
@@ -243,7 +243,7 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     return degrees * (pi / 180.0);
   }
 
-  double calculateDistance(DataGeoPoint point1, DataGeoPoint point2) {
+  double calculateDistance(GeoPoint point1, GeoPoint point2) {
     const earthRadius = 6371.0; // Earth's radius in kilometers
 
     final lat1Rad = degreesToRadians(point1.latitude);
@@ -262,7 +262,7 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     return distance;
   }
 
-  Marker? findNearestGeoPoint(DataGeoPoint targetPoint, Set<Marker> points) {
+  Marker? findNearestGeoPoint(GeoPoint targetPoint, Set<Marker> points) {
     if (points.isEmpty) {
       return null; // Return null if the list is empty
     }
@@ -273,7 +273,7 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     for (final point in points) {
       final dist = calculateDistance(
         targetPoint,
-        DataGeoPoint(
+        GeoPoint(
           latitude: point.position.latitude,
           longitude: point.position.longitude,
         ),

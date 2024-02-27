@@ -1,15 +1,15 @@
-import 'package:dgis_maps_flutter/src/method_channel.g.dart';
-
-class GeoPoint extends DataGeoPoint {
+class GeoPoint {
   GeoPoint({
-    required double latitude,
-    required double longitude,
-  }) : super(
-          latitude: latitude,
-          longitude: longitude,
-        );
+    required this.latitude,
+    required this.longitude,
+  });
 
-  @override
+  /// Координата долготы
+  double latitude;
+
+  /// Координата широты
+  double longitude;
+
   Object encode() {
     return <Object?>[
       latitude,
@@ -24,13 +24,4 @@ class GeoPoint extends DataGeoPoint {
       longitude: result[1]! as double,
     );
   }
-
-  GeoPoint copyWith({
-    double? latitude,
-    double? longitude,
-  }) =>
-      GeoPoint(
-        latitude: latitude ?? this.latitude,
-        longitude: longitude ?? this.longitude,
-      );
 }
