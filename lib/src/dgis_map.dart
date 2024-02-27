@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'controller.dart';
-import 'method_channel.g.dart';
+import 'method_channel.g.dart' hide GeoPoint;
 import 'types/types.dart';
 
 typedef MapCreatedCallback = void Function(DGisMapController controller);
