@@ -1,5 +1,5 @@
-class GeoPoint {
-  GeoPoint({
+class GeoPoint1 {
+  GeoPoint1({
     required this.latitude,
     required this.longitude,
   });
@@ -17,9 +17,9 @@ class GeoPoint {
     ];
   }
 
-  static GeoPoint decode(Object result) {
+  static GeoPoint1 decode(Object result) {
     result as List<Object?>;
-    return GeoPoint(
+    return GeoPoint1(
       latitude: result[0]! as double,
       longitude: result[1]! as double,
     );
