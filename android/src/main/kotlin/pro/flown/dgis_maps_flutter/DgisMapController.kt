@@ -22,9 +22,6 @@ import ru.dgis.sdk.positioning.registerPlatformLocationSource
 import ru.dgis.sdk.positioning.registerPlatformMagneticSource
 import ru.dgis.sdk.routing.*
 import ru.dgis.sdk.coordinates.GeoPoint
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import ru.dgis.sdk.Context
 
 class DgisMapController internal constructor(
         id: Int,
@@ -266,9 +263,10 @@ class DgisMapController internal constructor(
                 val objectCount = cluster.objectCount
                 val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
                 return SimpleClusterOptions(
-                    icon = imageFromResource(
-                        context,
-                        R.drawable.dgis_ic_road_event_marker_comment
+                    icon = Image(
+                        bitmap = BitmapDrawable(context.resources, ContextCompat.getDrawable(context, R.drawable.dgis_ic_road_event_marker_comment).toBitmap()),
+                        width = LogicalPixel(drawable.intrinsicWidth.toFloat()),
+                        height = LogicalPixel(drawable.intrinsicHeight.toFloat())
                     ),
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
