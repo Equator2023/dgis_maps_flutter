@@ -22,6 +22,9 @@ import ru.dgis.sdk.positioning.registerPlatformLocationSource
 import ru.dgis.sdk.positioning.registerPlatformMagneticSource
 import ru.dgis.sdk.routing.*
 import ru.dgis.sdk.coordinates.GeoPoint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import ru.dgis.sdk.Context
 
 class DgisMapController internal constructor(
         id: Int,
