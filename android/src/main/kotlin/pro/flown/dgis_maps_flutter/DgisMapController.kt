@@ -263,7 +263,7 @@ class DgisMapController internal constructor(
                 val objectCount = cluster.objectCount
                 val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
                 return SimpleClusterOptions(
-                    icon = Image(),
+                    icon = null,
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
                     textStyle = textStyle,
