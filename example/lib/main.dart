@@ -41,6 +41,16 @@ class _MyHomePageState extends State<MyHomePage> {
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
 
+  List<LatLng> points = [
+    LatLng(43.24103142234661, 76.91515532883092),
+    LatLng(43.24553402103508, 76.90073286394733),
+    LatLng(43.23461335020524, 76.86520955142616),
+    LatLng(43.23005817922267, 76.93661140959371),
+    LatLng(43.22498497447905, 76.93519047709287),
+    LatLng(43.25665970536574, 76.90037763082212),
+    LatLng(43.25960896456512, 76.86584897105155),
+  ];
+
   void onMapCreated(DGisMapController controller) {
     this.controller = controller;
   }
@@ -61,8 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> moveCamera() async {
     await controller.moveCamera(
       cameraPosition: CameraPosition(
-        target: LatLng(60, 30),
-        zoom: 7,
+        target: LatLng(43.24103142234661, 76.91515532883092),
+        zoom: 14,
         bearing: 0,
         tilt: 0,
       ),
@@ -91,11 +101,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> addMarker() async {
-    markers.add(Marker(
-      markerId: MapObjectId('m${mId++}'),
-      position: LatLng(60.0 + mId, 30.0 + mId),
-      infoText: 'm${mId++}',
-    ));
+    print(mId);
+    if (mId < points.length) {
+      markers.add(Marker(
+        markerId: MapObjectId('m${mId}'),
+        position: points[mId],
+        infoText: 'm${mId}',
+      ));
+      mId++;
+    }
+
     setState(() {});
   }
 
@@ -128,92 +143,89 @@ class _MyHomePageState extends State<MyHomePage> {
       //   child: Text("iter\n$i"),
       //   onPressed: () => setState(() => i++),
       // ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            AnimatedCrossFade(
-              firstChild: const SizedBox(height: 0),
-              secondChild: const SizedBox(height: 100),
-              crossFadeState: !isShrinkedTop
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              duration: const Duration(seconds: 2),
+      body: Column(
+        children: [
+          AnimatedCrossFade(
+            firstChild: const SizedBox(height: 0),
+            secondChild: const SizedBox(height: 100),
+            crossFadeState: !isShrinkedTop
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(seconds: 2),
+          ),
+          Expanded(
+            child: DGisMap(
+              key: ValueKey(i),
+              myLocationEnabled: myLocationEnabled,
+              initialPosition: CameraPosition(
+                  target: LatLng(43.24103142234661, 76.91515532883092),
+                  zoom: 9),
+              onMapCreated: onMapCreated,
+              markers: markers,
+              polylines: polylines,
+              onCameraStateChanged: (cameraState) {
+                print(cameraState);
+              },
+              onTapMarker: (marker) {},
+              mapTheme: MapTheme.light,
             ),
-            Container(
-              color: Colors.red,
-              height: 300,
-              child: DGisMap(
-                key: ValueKey(i),
-                myLocationEnabled: myLocationEnabled,
-                initialPosition:
-                    CameraPosition(target: LatLng(60, 30), zoom: 7),
-                onMapCreated: onMapCreated,
-                markers: markers,
-                polylines: polylines,
-                onCameraStateChanged: (cameraState) {
-                  print(cameraState);
-                },
-                onTapMarker: (marker) {},
-                mapTheme: MapTheme.light,
-              ),
-            ),
-            AnimatedCrossFade(
-              firstChild: const SizedBox(height: 0),
-              secondChild: const SizedBox(height: 100),
-              crossFadeState: !isShrinked
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              duration: const Duration(seconds: 2),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    children: [
-                      TextButton(
-                        onPressed: moveCamera,
-                        child: const Text('moveCamera'),
-                      ),
-                      TextButton(
-                        onPressed: moveCameraToBounds,
-                        child: const Text('moveCameraToBounds'),
-                      ),
-                      TextButton(
-                        onPressed: getCameraPosition,
-                        child: const Text('getCameraPosition'),
-                      ),
-                      TextButton(
-                        onPressed: addMarker,
-                        child: const Text('addMarker'),
-                      ),
-                      TextButton(
-                        onPressed: addPolyline,
-                        child: const Text('addPolyline'),
-                      ),
-                      TextButton(
-                        onPressed: toggleMyLocation,
-                        child: const Text('toggleMyLocation'),
-                      ),
-                      TextButton(
-                        onPressed: shrinkMapTop,
-                        child: const Text('shrinkMapTop'),
-                      ),
-                      TextButton(
-                        onPressed: shrinkMap,
-                        child: const Text('shrinkMap'),
-                      ),
-                      TextButton(
-                        onPressed: moveMap,
-                        child: const Text('moveMap'),
-                      ),
-                    ],
-                  ),
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox(height: 0),
+            secondChild: const SizedBox(height: 100),
+            crossFadeState: !isShrinked
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(seconds: 2),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  children: [
+                    TextButton(
+                      onPressed: moveCamera,
+                      child: const Text('moveCamera'),
+                    ),
+                    TextButton(
+                      onPressed: moveCameraToBounds,
+                      child: const Text('moveCameraToBounds'),
+                    ),
+                    TextButton(
+                      onPressed: getCameraPosition,
+                      child: const Text('getCameraPosition'),
+                    ),
+                    TextButton(
+                      onPressed: addMarker,
+                      child: const Text('addMarker'),
+                    ),
+                    TextButton(
+                      onPressed: addPolyline,
+                      child: const Text('addPolyline'),
+                    ),
+                    TextButton(
+                      onPressed: toggleMyLocation,
+                      child: const Text('toggleMyLocation'),
+                    ),
+                    TextButton(
+                      onPressed: shrinkMapTop,
+                      child: const Text('shrinkMapTop'),
+                    ),
+                    TextButton(
+                      onPressed: shrinkMap,
+                      child: const Text('shrinkMap'),
+                    ),
+                    TextButton(
+                      onPressed: moveMap,
+                      child: const Text('moveMap'),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 100),
-              ],
-            ),
-          ],
-        ),
+              ),
+              const SizedBox(width: 100),
+            ],
+          ),
+        ],
       ),
     );
   }

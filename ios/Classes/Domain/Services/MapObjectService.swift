@@ -43,7 +43,13 @@ final class MapObjectService {
     private let mapFactory: IMapFactory
     private let context: DGis.Context
     
-    private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
+//     private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
+    private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
+        map: self.mapFactory.map,
+        logicalPixel: LogicalPixel(80.0),
+        maxZoom: Zoom(19.0),
+        clusterRenderer: SimpleClusterRendererImpl(image: MapKitImage(systemName: "pin"))
+      )
     private lazy var myLocationSource: MyLocationMapObjectSource = MyLocationMapObjectSource(
         context: context,
         directionBehaviour: .followMagneticHeading
