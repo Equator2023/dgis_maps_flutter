@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dgis_maps_flutter/dgis_maps_flutter.dart';
+import 'package:example/core/map_markers.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -107,6 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
         markerId: MapObjectId('m${mId}'),
         position: points[mId],
         infoText: 'm${mId}',
+        bitmap: MarkerBitmap(
+          bytes: selectedMarker,
+          width: 50,
+          height: 50,
+        ),
       ));
       mId++;
     }

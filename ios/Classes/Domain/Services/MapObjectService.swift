@@ -43,17 +43,17 @@ final class MapObjectService {
     private let mapFactory: IMapFactory
     private let context: DGis.Context
     
-//     private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
+    // private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
     private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
         map: self.mapFactory.map,
         logicalPixel: LogicalPixel(80.0),
         maxZoom: Zoom(19.0),
-        clusterRenderer: SimpleClusterRendererImpl(image: MapKitImage(systemName: "pin"))
+        clusterRenderer: SimpleClusterRendererImpl(image: makeClusteringIcon())
       )
     private lazy var myLocationSource: MyLocationMapObjectSource = MyLocationMapObjectSource(
         context: context,
-        directionBehaviour: .followMagneticHeading
-        // controller: MyLocationController(bearingSource: .magnetic)
+        // directionBehaviour: .followMagneticHeading
+        controller: MyLocationController(bearingSource: .magnetic)
     )
     private var icons: [TypeSize: DGis.Image] = [:]
     
@@ -88,6 +88,8 @@ final class MapObjectService {
             objectsToAdd: toAdd
         )
     }
+
+    func clusteringMarkers(){}
     
     private func data2Marker(data: DataMarker) -> DGis.Marker {
         let icon = data.bitmap == nil ? nil : makeIcon(bitmap: data.bitmap!, size: MarkerSize.medium)
@@ -156,5 +158,22 @@ final class MapObjectService {
     
     func removeAll() {
         self.mapObjectManager.removeAll()
+    }
+
+    private func makeClusteringIcon() -> DGis.Image {
+        let imageSize = CGSize(width: 32, height: 32)
+        let renderer = UIGraphicsImageRenderer(size: imageSize)
+        let whiteCircleImage = renderer.image { context in
+            let inset: CGFloat = 3.0
+            let rect = CGRect(x: inset, y: inset, width: imageSize.width - 2 * inset, height: imageSize.height - 2 * inset)
+            let path = UIBezierPath(ovalIn: rect)
+            UIColor.white.setFill()
+            path.fill()
+            UIColor(red: 0x57/255.0, green: 0x75/255.0, blue: 0xF1/255.0, alpha: 1.0).setStroke()
+            let strokeWidth = 3.0
+            path.lineWidth = CGFloat(strokeWidth + strokeWidth / 2)
+            path.stroke()
+        }
+        return self.imageFactory.make(image: whiteCircleImage)
     }
 }

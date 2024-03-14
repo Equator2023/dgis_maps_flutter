@@ -1,3 +1,5 @@
+import DGis
+
 final class SimpleClusterRendererImpl: SimpleClusterRenderer {
 	private let image: DGis.Image
 	private var idx = 0
@@ -11,7 +13,7 @@ final class SimpleClusterRendererImpl: SimpleClusterRenderer {
 	func renderCluster(cluster: SimpleClusterObject) -> SimpleClusterOptions {
 		let textStyle = TextStyle(
 			fontSize: LogicalPixel(15.0),
-			textPlacement: TextPlacement.rightTop
+			textPlacement: TextPlacement.centerCenter
 		)
 		let objectCount = cluster.objectCount
 		let iconMapDirection = objectCount < 5 ? MapDirection(value: 45.0) : nil

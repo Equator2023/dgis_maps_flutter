@@ -33,7 +33,7 @@ class DGisNativeView: NSObject, FlutterPlatformView {
     }
     
     func _onMapTapCallback(objectInfo : RenderedObjectInfo) {
-        self.flutterApi.onMapObjectTapCallback(renderedObjectInfo: objectInfo)
+        // self.flutterApi.onMapObjectTapCallback(renderedObjectInfo: objectInfo)
     }
     
     func view() -> UIView {

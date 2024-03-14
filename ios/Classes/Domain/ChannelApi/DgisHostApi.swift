@@ -8,11 +8,6 @@
 import DGis
 
 class DgisHostApi : NSObject, PluginHostApi {
-    func createRoute(startPoint: GeoPoint, endPoint: GeoPoint) {
-        
-    }
-    
-    
     private let mapFactory : IMapFactory
     private let mapObjectService: MapObjectService
     private let cameraMoveService: CameraMoveService
@@ -111,6 +106,9 @@ class DgisHostApi : NSObject, PluginHostApi {
     func changeMyLocationLayerState(isVisible: Bool) {
         mapObjectService.toggleSelfMarker(isVisible: isVisible)
     }
+
+    func createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {   
+    }
     
     func getVisibleArea() -> DataLatLngBounds {
         let bounds = mapFactory.map.camera.visibleArea.bounds
@@ -124,6 +122,10 @@ class DgisHostApi : NSObject, PluginHostApi {
                 longitude: bounds.northEastPoint.longitude.value
             )
         )
+    }
+
+    func clusteringMarkers(){
+        mapObjectService.clusteringMarkers()
     }
     
 }
