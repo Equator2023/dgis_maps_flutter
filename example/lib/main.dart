@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:dgis_maps_flutter/dgis_maps_flutter.dart';
 import 'package:example/core/map_markers.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -142,6 +144,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // getDirections();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
@@ -225,6 +233,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: moveMap,
                       child: const Text('moveMap'),
                     ),
+                    TextButton(
+                      onPressed: createRoute,
+                      child: const Text('createRoute'),
+                    ),
                   ],
                 ),
               ),
@@ -234,5 +246,57 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+  void getDirections() async {
+    var url = Uri.parse(
+        'https://routing.api.2gis.com/carrouting/6.0.0/global?key=API_KEY');
+    var response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(
+        {
+          'points': [
+            {
+              "type": "walking",
+              "x": 43.2451643117112,
+              "y": 76.83592641374008,
+            },
+            {
+              "type": "walking",
+              "x": 43.23046997709439,
+              "y": 76.89557874085693,
+            },
+          ],
+        },
+      ),
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+  }
+
+  void createRoute() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: SizedBox(
+              width: 150,
+              height: 150,
+              child: Center(
+                  child: CircularProgressIndicator(
+                color: Colors.grey,
+              ))),
+        );
+      },
+    );
+
+    await controller.createRoute(
+      GeoPoint(latitude: 43.2451643117112, longitude: 76.83592641374008),
+      GeoPoint(latitude: 43.23046997709439, longitude: 76.89557874085693),
+    );
+
+    Navigator.of(context).pop();
   }
 }

@@ -23,6 +23,19 @@ import ru.dgis.sdk.positioning.registerPlatformMagneticSource
 import ru.dgis.sdk.routing.*
 import ru.dgis.sdk.coordinates.GeoPoint
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.RectF
+import android.graphics.Bitmap.Config
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import androidx.core.content.ContextCompat
+
+
+
 class DgisMapController internal constructor(
         id: Int,
         context: Context,
@@ -122,11 +135,12 @@ class DgisMapController internal constructor(
         }
         routeEditor = RouteEditor(sdkContext)
         trafficRouter = TrafficRouter(sdkContext)
-        val routeMapObjectSource = RouteMapObjectSource(sdkContext, RouteVisualizationType.NORMAL)
+        routeMapObjectSource = RouteMapObjectSource(sdkContext, RouteVisualizationType.NORMAL)
         map.addSource(routeMapObjectSource)
         val routeEditorSource = RouteEditorSource(sdkContext, routeEditor)
         map.addSource(routeEditorSource)
         objectManager = MapObjectManager(map)
+
 //        val searchManager = SearchManager.createOnlineManager(sdkContext)
 //        searchManager.search(SearchQueryBuilder.fromQueryText("осенний").build()).onResult {
 //            it.itemMarkerInfos.onResult { it ->
@@ -208,31 +222,64 @@ class DgisMapController internal constructor(
     }
 
     override fun createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {
+
+        val startPointGeo = toGeoPoint(startPoint)
+        val endPointGeo = toGeoPoint(endPoint)
+
         // Ищем маршрут
         val routesFuture = trafficRouter.findRoute(
-                startPoint = RouteSearchPoint(
-                        coordinates = toGeoPoint(startPoint)
-                ),
-                finishPoint = RouteSearchPoint(
-                        coordinates = toGeoPoint(endPoint)
-                ),
-                routeSearchOptions = RouteSearchOptions(
-                        car = CarRouteSearchOptions()
-                )
+            startPoint = RouteSearchPoint(coordinates = startPointGeo),
+            finishPoint = RouteSearchPoint(coordinates = endPointGeo),
+            routeSearchOptions = RouteSearchOptions(car = CarRouteSearchOptions())
         )
 
         // После получения маршрута добавляем его на карту
+
         routesFuture.onResult { routes: List<TrafficRoute> ->
-            var isActive = true
-            var routeIndex: Long = 0;
-            for (route in routes) {
-                routeMapObjectSource.addObject(
-                        RouteMapObject(route, isActive, index = RouteIndex(routeIndex))
-                )
-                isActive = false
-                routeIndex++
+            if (routes.isNotEmpty()) {
+//                 Очищаем предыдущие маршруты
+                routeMapObjectSource.clear()
+
+                // Добавляем новый маршрут на карту
+                // Все маршруты
+//                routes.forEachIndexed { index, route ->
+//                    val routeMapObject =
+//                        RouteMapObject(route, isActive = true, index = RouteIndex(index.toLong()))
+//                    routeMapObjectSource.addObject(routeMapObject)
+//                }
+
+                val routeMapObject = RouteMapObject(routes.first(), isActive = true, index = RouteIndex(0))
+                routeMapObjectSource.addObject(routeMapObject)
             }
         }
+
+//        -----------
+        // Ищем маршрут
+//        val routesFuture = trafficRouter.findRoute(
+//                startPoint = RouteSearchPoint(
+//                        coordinates = toGeoPoint(startPoint)
+//                ),
+//                finishPoint = RouteSearchPoint(
+//                        coordinates = toGeoPoint(endPoint)
+//                ),
+//                routeSearchOptions = RouteSearchOptions(
+//                        car = CarRouteSearchOptions()
+//                )
+//        )
+//
+//        // После получения маршрута добавляем его на карту
+//        routesFuture.onResult { routes: List<TrafficRoute> ->
+//            var isActive = true
+//            var routeIndex: Long = 0;
+//            for (route in routes) {
+//                routeMapObjectSource.addObject(
+//                        RouteMapObject(route, isActive, index = RouteIndex(routeIndex))
+//                )
+//                isActive = false
+//                routeIndex++
+//            }
+//        }
+//        -------------
 //        routeEditor.setRouteParams(
 //                RouteEditorRouteParams(
 //                        startPoint = RouteSearchPoint(
@@ -258,12 +305,13 @@ class DgisMapController internal constructor(
             override fun renderCluster(cluster: SimpleClusterObject): SimpleClusterOptions {
                 val textStyle = TextStyle(
                     fontSize = LogicalPixel(15.0f),
-                    textPlacement = TextPlacement.RIGHT_TOP
+                    textPlacement = TextPlacement.CENTER_CENTER
                 )
                 val objectCount = cluster.objectCount
                 val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
                 return SimpleClusterOptions(
-                    icon = imageFromResource(context = sdkContext, resourceId = R.drawable.dgis_ic_road_event_marker_comment),
+                    icon = makeClusteringIcon(context = sdkContext),
+//                    icon = imageFromResource(context = sdkContext, resourceId = R.drawable.dgis_ic_road_event_marker_comment),
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
                     textStyle = textStyle,
@@ -274,5 +322,29 @@ class DgisMapController internal constructor(
         }
 
         objectManager = MapObjectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
+    }
+
+    fun makeClusteringIcon(context: ru.dgis.sdk.Context): Image? {
+        val imageSize = Pair(42.0f, 42.0f)
+        val whiteCircleBitmap = createWhiteCircleBitmap(imageSize)
+        return whiteCircleBitmap?.let { imageFromBitmap(context, it) }
+    }
+
+    fun createWhiteCircleBitmap(size: Pair<Float, Float>): Bitmap {
+        val bitmap = Bitmap.createBitmap(size.first.toInt(), size.second.toInt(), Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val inset = 2.0f
+        val rect = RectF(inset, inset, size.first - 2 * inset, size.second - 2 * inset)
+        val paint = Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.FILL
+            color = Color.WHITE
+        }
+        canvas.drawOval(rect, paint)
+        paint.style = Paint.Style.STROKE
+        paint.color = Color.parseColor("#5775F1")
+        paint.strokeWidth = 3.0f
+        canvas.drawOval(rect, paint)
+        return bitmap
     }
 }
