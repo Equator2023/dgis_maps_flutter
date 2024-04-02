@@ -27,6 +27,7 @@ class DGisMap extends StatefulWidget {
     this.myLocationEnabled = true,
     required this.initialPosition,
     required this.onTapMarker,
+    required this.onClusterTapped,
     this.mapTheme = MapTheme.auto,
     this.onTapMap,
   }) : super(key: key);
@@ -37,6 +38,7 @@ class DGisMap extends StatefulWidget {
   final MapCreatedCallback? onMapCreated;
   final Function(Marker) onTapMarker;
   final Function()? onTapMap;
+  final Function(List<String>) onClusterTapped;
 
   final Set<Marker> markers;
   final Set<Polyline> polylines;
@@ -216,6 +218,11 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
         final list = _markers;
         widget.onTapMarker(
             list.firstWhere((element) => element.markerId.value == id));
+        break;
+      case 'ontap_cluster':
+        final List<String> listOfMarkers =
+            List<String>.from(call.arguments['objects']);
+        widget.onClusterTapped(listOfMarkers);
         break;
       case 'ontap_map':
         widget.onTapMap?.call();

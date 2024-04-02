@@ -88,7 +88,20 @@ class DgisMapController internal constructor(
                 var isMarkerTapped = false;
                 map.getRenderedObjects(point, ScreenDistance(1f)).onResult {
                     for (renderedObjectInfo in it) {
-                        if (renderedObjectInfo.item.item.userData != null) {
+                        if (renderedObjectInfo.item.item is SimpleClusterObject) {
+                            val cluster = renderedObjectInfo.item.item as SimpleClusterObject
+                            val clusterObjects = cluster.objects.map { it.userData.toString() }
+                            val args = mapOf(
+                                "objects" to clusterObjects
+                            )
+                            methodChannel.invokeMethod(
+                                "ontap_cluster",
+                                args
+                            )
+
+                            break
+                        }
+                        else if (renderedObjectInfo.item.item.userData != null) {
                             val args = mapOf(
                                     "id" to renderedObjectInfo.item.item.userData
                             )

@@ -180,8 +180,13 @@ class _MyHomePageState extends State<MyHomePage> {
               onCameraStateChanged: (cameraState) {
                 print(cameraState);
               },
-              onTapMarker: (marker) {},
+              onTapMarker: (marker) {
+                print(marker.markerId.value);
+              },
               mapTheme: MapTheme.light,
+              onClusterTapped: (markers) {
+                print(markers);
+              },
             ),
           ),
           AnimatedCrossFade(
