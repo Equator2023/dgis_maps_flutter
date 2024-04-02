@@ -90,7 +90,8 @@ class DgisMapController internal constructor(
                     for (renderedObjectInfo in it) {
                         if (renderedObjectInfo.item.item is SimpleClusterObject) {
                             val cluster = renderedObjectInfo.item.item as SimpleClusterObject
-                            val clusterObjects = cluster.objects.map { it.userData.toString() }
+                            val clusterObjects = cluster.objects.map {listOf((it as Marker).position.latitude.value, (it as Marker).position.longitude.value)}
+
                             val args = mapOf(
                                 "objects" to clusterObjects
                             )

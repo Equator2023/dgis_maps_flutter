@@ -197,56 +197,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 : CrossFadeState.showSecond,
             duration: const Duration(seconds: 2),
           ),
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  children: [
-                    TextButton(
-                      onPressed: moveCamera,
-                      child: const Text('moveCamera'),
-                    ),
-                    TextButton(
-                      onPressed: moveCameraToBounds,
-                      child: const Text('moveCameraToBounds'),
-                    ),
-                    TextButton(
-                      onPressed: getCameraPosition,
-                      child: const Text('getCameraPosition'),
-                    ),
-                    TextButton(
-                      onPressed: addMarker,
-                      child: const Text('addMarker'),
-                    ),
-                    TextButton(
-                      onPressed: addPolyline,
-                      child: const Text('addPolyline'),
-                    ),
-                    TextButton(
-                      onPressed: toggleMyLocation,
-                      child: const Text('toggleMyLocation'),
-                    ),
-                    TextButton(
-                      onPressed: shrinkMapTop,
-                      child: const Text('shrinkMapTop'),
-                    ),
-                    TextButton(
-                      onPressed: shrinkMap,
-                      child: const Text('shrinkMap'),
-                    ),
-                    TextButton(
-                      onPressed: moveMap,
-                      child: const Text('moveMap'),
-                    ),
-                    TextButton(
-                      onPressed: createRoute,
-                      child: const Text('createRoute'),
-                    ),
-                  ],
-                ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              height: 80,
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: addMarker,
+                    child: const Text('addMarker'),
+                  ),
+                  TextButton(
+                    onPressed: moveCamera,
+                    child: const Text('moveCamera'),
+                  ),
+                  TextButton(
+                    onPressed: moveCameraToBounds,
+                    child: const Text('moveCameraToBounds'),
+                  ),
+                  TextButton(
+                    onPressed: getCameraPosition,
+                    child: const Text('getCameraPosition'),
+                  ),
+                  TextButton(
+                    onPressed: addPolyline,
+                    child: const Text('addPolyline'),
+                  ),
+                  TextButton(
+                    onPressed: toggleMyLocation,
+                    child: const Text('toggleMyLocation'),
+                  ),
+                  TextButton(
+                    onPressed: shrinkMapTop,
+                    child: const Text('shrinkMapTop'),
+                  ),
+                  TextButton(
+                    onPressed: shrinkMap,
+                    child: const Text('shrinkMap'),
+                  ),
+                  TextButton(
+                    onPressed: moveMap,
+                    child: const Text('moveMap'),
+                  ),
+                  TextButton(
+                    onPressed: createRoute,
+                    child: const Text('createRoute'),
+                  ),
+                  const SizedBox(width: 100),
+                ],
               ),
-              const SizedBox(width: 100),
-            ],
+            ),
           ),
         ],
       ),
