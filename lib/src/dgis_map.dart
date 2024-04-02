@@ -36,7 +36,7 @@ class DGisMap extends StatefulWidget {
   final MapTheme mapTheme;
 
   final MapCreatedCallback? onMapCreated;
-  final Function(Marker) onTapMarker;
+  final Function(Marker?) onTapMarker;
   final Function()? onTapMap;
   final Function(List<dynamic>) onClusterTapped;
 
@@ -233,20 +233,36 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
   }
 
   @override
-  void onMapObjectTapped(dynamic) {
-    final list = _markers;
-    print(123);
-    print(dynamic);
-    if (dynamic is GeoPoint) {
-      // Marker? _selectedMarker = findNearestGeoPoint(dynamic, _markers);
-      // if (_selectedMarker != null) {
-      //   widget.onTapMarker(_selectedMarker);
-      // }
-    } else {
-      // widget.onTapMarker(list
-      //     .firstWhere((element) => element.markerId.value == dynamic['id']));
+  void onMarkerTapped(List<double?> point) async {
+    print(point);
+    if (point.isNotEmpty) {
+      Marker? _selectedMarker = findNearestGeoPoint(
+          GeoPoint(latitude: point[0]!, longitude: point[1]!), _markers);
+      if (_selectedMarker != null) {
+        widget.onTapMarker(_selectedMarker);
+      }
     }
   }
+
+  @override
+  void onClusterObjectTapped(List<Object?> points) async {
+    print(points);
+    widget.onClusterTapped(points);
+  }
+
+  // @override
+  // void onMapObjectTapped(dynamic object) async {
+  //   final list = _markers;
+  //   if (dynamic is GeoPoint) {
+  //   Marker? _selectedMarker = findNearestGeoPoint(dynamic, _markers);
+  //   if (_selectedMarker != null) {
+  //     widget.onTapMarker(_selectedMarker);
+  //   }
+  //   } else {
+  //   widget.onTapMarker(list
+  //       .firstWhere((element) => element.markerId.value == dynamic['id']));
+  //   }
+  // }
 
   double degreesToRadians(double degrees) {
     return degrees * (pi / 180.0);

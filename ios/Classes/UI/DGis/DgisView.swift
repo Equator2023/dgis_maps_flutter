@@ -33,8 +33,21 @@ class DGisNativeView: NSObject, FlutterPlatformView {
     }
     
     func _onMapTapCallback(objectInfo : RenderedObjectInfo) {
-        print(objectInfo);
-        self.flutterApi.onMapObjectTapped(object: objectInfo)
+        if let cluster = objectInfo.item.item as? SimpleClusterObject {
+            var points: [[Double]] = []
+            for obj in cluster.objects {
+                if let marker = obj as? Marker {
+                    let latitude = marker.position.latitude.value
+                    let longitude = marker.position.longitude.value
+                    points.append([latitude, longitude])
+                }
+            }
+
+            self.flutterApi.onClusterObjectTapped(points: points, completion: {})
+        }
+        else{
+            self.flutterApi.onMarkerTapped(point: [objectInfo.closestMapPoint.latitude.value, objectInfo.closestMapPoint.longitude.value], completion: {})
+        }
     }
     
     func view() -> UIView {

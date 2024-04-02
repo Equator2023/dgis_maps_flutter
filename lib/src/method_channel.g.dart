@@ -781,11 +781,44 @@ class _PluginFlutterApiCodec extends StandardMessageCodec {
   const _PluginFlutterApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is DataCameraStateValue) {
+    if (value is DataCameraPosition) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is dynamic) {
+    } else if (value is DataCameraStateValue) {
       buffer.putUint8(129);
+      writeValue(buffer, value.encode());
+    } else if (value is DataCreationParams) {
+      buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else if (value is DataGeoPoint) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    } else if (value is DataLatLng) {
+      buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    } else if (value is DataLatLngBounds) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    } else if (value is DataMapObjectId) {
+      buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    } else if (value is DataMarker) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    } else if (value is DataMarkerBitmap) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    } else if (value is DataMarkerUpdates) {
+      buffer.putUint8(137);
+      writeValue(buffer, value.encode());
+    } else if (value is DataPadding) {
+      buffer.putUint8(138);
+      writeValue(buffer, value.encode());
+    } else if (value is DataPolyline) {
+      buffer.putUint8(139);
+      writeValue(buffer, value.encode());
+    } else if (value is DataPolylineUpdates) {
+      buffer.putUint8(140);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -796,10 +829,43 @@ class _PluginFlutterApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128:       
-        return DataCameraStateValue.decode(readValue(buffer)!);
+        return DataCameraPosition.decode(readValue(buffer)!);
       
       case 129:       
-        return dynamic.decode(readValue(buffer)!);
+        return DataCameraStateValue.decode(readValue(buffer)!);
+      
+      case 130:       
+        return DataCreationParams.decode(readValue(buffer)!);
+      
+      case 131:       
+        return DataGeoPoint.decode(readValue(buffer)!);
+      
+      case 132:       
+        return DataLatLng.decode(readValue(buffer)!);
+      
+      case 133:       
+        return DataLatLngBounds.decode(readValue(buffer)!);
+      
+      case 134:       
+        return DataMapObjectId.decode(readValue(buffer)!);
+      
+      case 135:       
+        return DataMarker.decode(readValue(buffer)!);
+      
+      case 136:       
+        return DataMarkerBitmap.decode(readValue(buffer)!);
+      
+      case 137:       
+        return DataMarkerUpdates.decode(readValue(buffer)!);
+      
+      case 138:       
+        return DataPadding.decode(readValue(buffer)!);
+      
+      case 139:       
+        return DataPolyline.decode(readValue(buffer)!);
+      
+      case 140:       
+        return DataPolylineUpdates.decode(readValue(buffer)!);
       
       default:
         return super.readValueOfType(type, buffer);
@@ -818,7 +884,10 @@ abstract class PluginFlutterApi {
   void onNativeMapReady();
 
   /// Коллбэк на нажатие объект
-  void onMapObjectTapped(dynamic object);
+  void onMarkerTapped(List<double?> point);
+
+  /// Коллбэк на нажатие кластеризованного объекта
+  void onClusterObjectTapped(List<Object?> points);
 
   static void setup(PluginFlutterApi? api, {BinaryMessenger? binaryMessenger, required int id}) {
     {
@@ -856,19 +925,38 @@ abstract class PluginFlutterApi {
     }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'pro.flown.PluginFlutterApi_$id.onMapObjectTapped', codec,
+          'pro.flown.PluginFlutterApi_$id.onMarkerTapped', codec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for pro.flown.PluginFlutterApi_$id.onMapObjectTapped was null.');
+          'Argument for pro.flown.PluginFlutterApi_$id.onMarkerTapped was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final dynamic? arg_object = (args[0] as dynamic?);
-          assert(arg_object != null,
-              'Argument for pro.flown.PluginFlutterApi_$id.onMapObjectTapped was null, expected non-null dynamic.');
-          api.onMapObjectTapped(arg_object!);
+          final List<double?>? arg_point = (args[0] as List<Object?>?)?.cast<double?>();
+          assert(arg_point != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onMarkerTapped was null, expected non-null List<double?>.');
+          api.onMarkerTapped(arg_point!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'pro.flown.PluginFlutterApi_$id.onClusterObjectTapped', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for pro.flown.PluginFlutterApi_$id.onClusterObjectTapped was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final List<Object?>? arg_points = (args[0] as List<Object?>?)?.cast<Object?>();
+          assert(arg_points != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onClusterObjectTapped was null, expected non-null List<Object?>.');
+          api.onClusterObjectTapped(arg_points!);
           return;
         });
       }

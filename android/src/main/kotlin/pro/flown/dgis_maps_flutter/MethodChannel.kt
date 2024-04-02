@@ -780,12 +780,67 @@ private object PluginFlutterApiCodec : StandardMessageCodec() {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          DataCameraStateValue.fromList(it)
+          DataCameraPosition.fromList(it)
         }
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          dynamic.fromList(it)
+          DataCameraStateValue.fromList(it)
+        }
+      }
+      130.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataCreationParams.fromList(it)
+        }
+      }
+      131.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataGeoPoint.fromList(it)
+        }
+      }
+      132.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataLatLng.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataLatLngBounds.fromList(it)
+        }
+      }
+      134.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataMapObjectId.fromList(it)
+        }
+      }
+      135.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataMarker.fromList(it)
+        }
+      }
+      136.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataMarkerBitmap.fromList(it)
+        }
+      }
+      137.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataMarkerUpdates.fromList(it)
+        }
+      }
+      138.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataPadding.fromList(it)
+        }
+      }
+      139.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataPolyline.fromList(it)
+        }
+      }
+      140.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          DataPolylineUpdates.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -793,12 +848,56 @@ private object PluginFlutterApiCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is DataCameraStateValue -> {
+      is DataCameraPosition -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is dynamic -> {
+      is DataCameraStateValue -> {
         stream.write(129)
+        writeValue(stream, value.toList())
+      }
+      is DataCreationParams -> {
+        stream.write(130)
+        writeValue(stream, value.toList())
+      }
+      is DataGeoPoint -> {
+        stream.write(131)
+        writeValue(stream, value.toList())
+      }
+      is DataLatLng -> {
+        stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is DataLatLngBounds -> {
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
+      is DataMapObjectId -> {
+        stream.write(134)
+        writeValue(stream, value.toList())
+      }
+      is DataMarker -> {
+        stream.write(135)
+        writeValue(stream, value.toList())
+      }
+      is DataMarkerBitmap -> {
+        stream.write(136)
+        writeValue(stream, value.toList())
+      }
+      is DataMarkerUpdates -> {
+        stream.write(137)
+        writeValue(stream, value.toList())
+      }
+      is DataPadding -> {
+        stream.write(138)
+        writeValue(stream, value.toList())
+      }
+      is DataPolyline -> {
+        stream.write(139)
+        writeValue(stream, value.toList())
+      }
+      is DataPolylineUpdates -> {
+        stream.write(140)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -833,9 +932,16 @@ class PluginFlutterApi(private val binaryMessenger: BinaryMessenger, private val
     }
   }
   /** Коллбэк на нажатие объект */
-  fun onMapObjectTapped(objectArg: dynamic, callback: () -> Unit) {
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onMapObjectTapped", codec)
-    channel.send(listOf(objectArg)) {
+  fun onMarkerTapped(pointArg: List<Double>, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onMarkerTapped", codec)
+    channel.send(listOf(pointArg)) {
+      callback()
+    }
+  }
+  /** Коллбэк на нажатие кластеризованного объекта */
+  fun onClusterObjectTapped(pointsArg: List<Any>, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onClusterObjectTapped", codec)
+    channel.send(listOf(pointsArg)) {
       callback()
     }
   }

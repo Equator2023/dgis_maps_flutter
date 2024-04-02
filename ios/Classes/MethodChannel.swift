@@ -667,9 +667,31 @@ private class PluginFlutterApiCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
       case 128:
-        return DataCameraStateValue.fromList(self.readValue() as! [Any])
+        return DataCameraPosition.fromList(self.readValue() as! [Any])
       case 129:
-        return dynamic.fromList(self.readValue() as! [Any])
+        return DataCameraStateValue.fromList(self.readValue() as! [Any])
+      case 130:
+        return DataCreationParams.fromList(self.readValue() as! [Any])
+      case 131:
+        return DataGeoPoint.fromList(self.readValue() as! [Any])
+      case 132:
+        return DataLatLng.fromList(self.readValue() as! [Any])
+      case 133:
+        return DataLatLngBounds.fromList(self.readValue() as! [Any])
+      case 134:
+        return DataMapObjectId.fromList(self.readValue() as! [Any])
+      case 135:
+        return DataMarker.fromList(self.readValue() as! [Any])
+      case 136:
+        return DataMarkerBitmap.fromList(self.readValue() as! [Any])
+      case 137:
+        return DataMarkerUpdates.fromList(self.readValue() as! [Any])
+      case 138:
+        return DataPadding.fromList(self.readValue() as! [Any])
+      case 139:
+        return DataPolyline.fromList(self.readValue() as! [Any])
+      case 140:
+        return DataPolylineUpdates.fromList(self.readValue() as! [Any])
       default:
         return super.readValue(ofType: type)
     }
@@ -678,11 +700,44 @@ private class PluginFlutterApiCodecReader: FlutterStandardReader {
 
 private class PluginFlutterApiCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? DataCameraStateValue {
+    if let value = value as? DataCameraPosition {
       super.writeByte(128)
       super.writeValue(value.toList())
-    } else if let value = value as? dynamic {
+    } else if let value = value as? DataCameraStateValue {
       super.writeByte(129)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataCreationParams {
+      super.writeByte(130)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataGeoPoint {
+      super.writeByte(131)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataLatLng {
+      super.writeByte(132)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataLatLngBounds {
+      super.writeByte(133)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataMapObjectId {
+      super.writeByte(134)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataMarker {
+      super.writeByte(135)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataMarkerBitmap {
+      super.writeByte(136)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataMarkerUpdates {
+      super.writeByte(137)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataPadding {
+      super.writeByte(138)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataPolyline {
+      super.writeByte(139)
+      super.writeValue(value.toList())
+    } else if let value = value as? DataPolylineUpdates {
+      super.writeByte(140)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -731,9 +786,16 @@ class PluginFlutterApi {
     }
   }
   /// Коллбэк на нажатие объект
-  func onMapObjectTapped(object objectArg: dynamic, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onMapObjectTapped", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([objectArg] as [Any?]) { _ in
+  func onMarkerTapped(point pointArg: [Double], completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onMarkerTapped", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([pointArg] as [Any?]) { _ in
+      completion()
+    }
+  }
+  /// Коллбэк на нажатие кластеризованного объекта
+  func onClusterObjectTapped(points pointsArg: [Any], completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onClusterObjectTapped", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([pointsArg] as [Any?]) { _ in
       completion()
     }
   }

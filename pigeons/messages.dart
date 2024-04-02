@@ -286,7 +286,10 @@ abstract class PluginFlutterApi {
   void onNativeMapReady();
 
   /// Коллбэк на нажатие объект
-  void onMapObjectTapped(var object);
+  void onMarkerTapped(List<double> point);
+
+  /// Коллбэк на нажатие кластеризованного объекта
+  void onClusterObjectTapped(List<Object> points);
 }
 
 /// Класс, используемый для генерации моделей,

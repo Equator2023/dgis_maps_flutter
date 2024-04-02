@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> addMarker() async {
-    print(mId);
+    // print(mId);
     if (mId < points.length) {
       markers.add(Marker(
         markerId: MapObjectId('m${mId}'),
@@ -181,7 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 print(cameraState);
               },
               onTapMarker: (marker) {
-                print(marker.markerId.value);
+                if (marker != null) {
+                  print(marker.markerId.value);
+                }
               },
               mapTheme: MapTheme.light,
               onClusterTapped: (markers) {
