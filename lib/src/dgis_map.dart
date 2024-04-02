@@ -234,7 +234,6 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
 
   @override
   void onMarkerTapped(List<double?> point) async {
-    print(point);
     if (point.isNotEmpty) {
       Marker? _selectedMarker = findNearestGeoPoint(
           GeoPoint(latitude: point[0]!, longitude: point[1]!), _markers);
@@ -246,7 +245,6 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
 
   @override
   void onClusterObjectTapped(List<Object?> points) async {
-    print(points);
     widget.onClusterTapped(points);
   }
 
