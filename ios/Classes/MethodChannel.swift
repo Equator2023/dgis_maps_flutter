@@ -668,6 +668,8 @@ private class PluginFlutterApiCodecReader: FlutterStandardReader {
     switch type {
       case 128:
         return DataCameraStateValue.fromList(self.readValue() as! [Any])
+      case 129:
+        return dynamic.fromList(self.readValue() as! [Any])
       default:
         return super.readValue(ofType: type)
     }
@@ -678,6 +680,9 @@ private class PluginFlutterApiCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
     if let value = value as? DataCameraStateValue {
       super.writeByte(128)
+      super.writeValue(value.toList())
+    } else if let value = value as? dynamic {
+      super.writeByte(129)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -722,6 +727,13 @@ class PluginFlutterApi {
   func onNativeMapReady(completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onNativeMapReady", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage(nil) { _ in
+      completion()
+    }
+  }
+  /// Коллбэк на нажатие объект
+  func onMapObjectTapped(object objectArg: dynamic, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onMapObjectTapped", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([objectArg] as [Any?]) { _ in
       completion()
     }
   }

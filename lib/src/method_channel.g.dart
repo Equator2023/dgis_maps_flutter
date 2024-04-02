@@ -784,6 +784,9 @@ class _PluginFlutterApiCodec extends StandardMessageCodec {
     if (value is DataCameraStateValue) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
+    } else if (value is dynamic) {
+      buffer.putUint8(129);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -794,6 +797,9 @@ class _PluginFlutterApiCodec extends StandardMessageCodec {
     switch (type) {
       case 128:       
         return DataCameraStateValue.decode(readValue(buffer)!);
+      
+      case 129:       
+        return dynamic.decode(readValue(buffer)!);
       
       default:
         return super.readValueOfType(type, buffer);
@@ -810,6 +816,9 @@ abstract class PluginFlutterApi {
 
   /// Коллбэк на завршение сохдания нативной карты
   void onNativeMapReady();
+
+  /// Коллбэк на нажатие объект
+  void onMapObjectTapped(dynamic object);
 
   static void setup(PluginFlutterApi? api, {BinaryMessenger? binaryMessenger, required int id}) {
     {
@@ -841,6 +850,25 @@ abstract class PluginFlutterApi {
         channel.setMessageHandler((Object? message) async {
           // ignore message
           api.onNativeMapReady();
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'pro.flown.PluginFlutterApi_$id.onMapObjectTapped', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for pro.flown.PluginFlutterApi_$id.onMapObjectTapped was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final dynamic? arg_object = (args[0] as dynamic?);
+          assert(arg_object != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onMapObjectTapped was null, expected non-null dynamic.');
+          api.onMapObjectTapped(arg_object!);
           return;
         });
       }

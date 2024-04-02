@@ -284,6 +284,9 @@ abstract class PluginFlutterApi {
 
   /// Коллбэк на завршение сохдания нативной карты
   void onNativeMapReady();
+
+  /// Коллбэк на нажатие объект
+  void onMapObjectTapped(var object);
 }
 
 /// Класс, используемый для генерации моделей,

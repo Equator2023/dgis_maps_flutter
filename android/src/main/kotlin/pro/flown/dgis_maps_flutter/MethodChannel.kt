@@ -783,6 +783,11 @@ private object PluginFlutterApiCodec : StandardMessageCodec() {
           DataCameraStateValue.fromList(it)
         }
       }
+      129.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          dynamic.fromList(it)
+        }
+      }
       else -> super.readValueOfType(type, buffer)
     }
   }
@@ -790,6 +795,10 @@ private object PluginFlutterApiCodec : StandardMessageCodec() {
     when (value) {
       is DataCameraStateValue -> {
         stream.write(128)
+        writeValue(stream, value.toList())
+      }
+      is dynamic -> {
+        stream.write(129)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -820,6 +829,13 @@ class PluginFlutterApi(private val binaryMessenger: BinaryMessenger, private val
   fun onNativeMapReady(callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onNativeMapReady", codec)
     channel.send(null) {
+      callback()
+    }
+  }
+  /** Коллбэк на нажатие объект */
+  fun onMapObjectTapped(objectArg: dynamic, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onMapObjectTapped", codec)
+    channel.send(listOf(objectArg)) {
       callback()
     }
   }

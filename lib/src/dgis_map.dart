@@ -235,14 +235,16 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
   @override
   void onMapObjectTapped(dynamic) {
     final list = _markers;
+    print(123);
+    print(dynamic);
     if (dynamic is GeoPoint) {
-      Marker? _selectedMarker = findNearestGeoPoint(dynamic, _markers);
-      if (_selectedMarker != null) {
-        widget.onTapMarker(_selectedMarker);
-      }
+      // Marker? _selectedMarker = findNearestGeoPoint(dynamic, _markers);
+      // if (_selectedMarker != null) {
+      //   widget.onTapMarker(_selectedMarker);
+      // }
     } else {
-      widget.onTapMarker(list
-          .firstWhere((element) => element.markerId.value == dynamic['id']));
+      // widget.onTapMarker(list
+      //     .firstWhere((element) => element.markerId.value == dynamic['id']));
     }
   }
 
