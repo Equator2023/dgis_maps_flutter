@@ -88,8 +88,6 @@ final class MapObjectService {
             objectsToAdd: toAdd
         )
     }
-
-    func clusteringMarkers(){}
     
     private func data2Marker(data: DataMarker) -> DGis.Marker {
         let icon = data.bitmap == nil ? nil : makeIcon(bitmap: data.bitmap!, size: MarkerSize.medium)

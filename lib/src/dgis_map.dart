@@ -122,11 +122,6 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     );
   }
 
-  Future<void> _clusteringMarkers() async {
-    await _apiReady.future;
-    return api.clusteringMarkers();
-  }
-
   Future<void> onViewCreated(int id) async {
     api = PluginHostApi(id: id);
     final controller = DGisMapController(api, _apiReady, mapId: id);
@@ -136,7 +131,6 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     if (onMapCreated != null) {
       onMapCreated(controller);
     }
-    _clusteringMarkers();
   }
 
   @override

@@ -527,7 +527,6 @@ protocol PluginHostApi {
   func changeMyLocationLayerState(isVisible: Bool)
   /// Получение координат текущего экрана
   func getVisibleArea() -> DataLatLngBounds
-  func clusteringMarkers()
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -651,15 +650,6 @@ class PluginHostApiSetup {
       }
     } else {
       getVisibleAreaChannel.setMessageHandler(nil)
-    }
-    let clusteringMarkersChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).clusteringMarkers", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      clusteringMarkersChannel.setMessageHandler { _, reply in
-        api.clusteringMarkers()
-        reply(wrapResult(nil))
-      }
-    } else {
-      clusteringMarkersChannel.setMessageHandler(nil)
     }
   }
 }

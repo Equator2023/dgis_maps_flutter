@@ -144,6 +144,28 @@ class DgisMapController internal constructor(
                 dataLoadingConnection.close()
             }
         }
+
+        // Cluster Renderer
+        val clusterRenderer = object : SimpleClusterRenderer {
+            override fun renderCluster(cluster: SimpleClusterObject): SimpleClusterOptions {
+                val textStyle = TextStyle(
+                    fontSize = LogicalPixel(15.0f),
+                    textPlacement = TextPlacement.CENTER_CENTER
+                )
+                val objectCount = cluster.objectCount
+                val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
+                return SimpleClusterOptions(
+                    icon = makeClusteringIcon(context = sdkContext),
+//                    icon = imageFromResource(context = sdkContext, resourceId = R.drawable.dgis_ic_road_event_marker_comment),
+                    iconWidth = LogicalPixel(30.0f),
+                    text = objectCount.toString(),
+                    textStyle = textStyle,
+                    iconMapDirection = iconMapDirection,
+                    userData = objectCount.toString()
+                )
+            }
+        }
+
         cameraStateConnection = map.camera.stateChannel.connect {
             flutterApi.onCameraStateChanged(toDataCameraStateValue(it)) {}
         }
@@ -152,8 +174,9 @@ class DgisMapController internal constructor(
         routeMapObjectSource = RouteMapObjectSource(sdkContext, RouteVisualizationType.NORMAL)
         map.addSource(routeMapObjectSource)
         val routeEditorSource = RouteEditorSource(sdkContext, routeEditor)
-        map.addSource(routeEditorSource)
-        objectManager = MapObjectManager(map)
+//        map.addSource(routeEditorSource)
+
+        objectManager = MapObjectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
 
 //        val searchManager = SearchManager.createOnlineManager(sdkContext)
 //        searchManager.search(SearchQueryBuilder.fromQueryText("осенний").build()).onResult {
@@ -312,30 +335,6 @@ class DgisMapController internal constructor(
     override fun updatePolylines(updates: DataPolylineUpdates) {
         objectManager.removeObjects(updates.toRemove.map { toPolyline(it!!) })
         objectManager.addObjects(updates.toAdd.map { toPolyline(it!!) })
-    }
-
-    override fun clusteringMarkers() {
-        val clusterRenderer = object : SimpleClusterRenderer {
-            override fun renderCluster(cluster: SimpleClusterObject): SimpleClusterOptions {
-                val textStyle = TextStyle(
-                    fontSize = LogicalPixel(15.0f),
-                    textPlacement = TextPlacement.CENTER_CENTER
-                )
-                val objectCount = cluster.objectCount
-                val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
-                return SimpleClusterOptions(
-                    icon = makeClusteringIcon(context = sdkContext),
-//                    icon = imageFromResource(context = sdkContext, resourceId = R.drawable.dgis_ic_road_event_marker_comment),
-                    iconWidth = LogicalPixel(30.0f),
-                    text = objectCount.toString(),
-                    textStyle = textStyle,
-                    iconMapDirection = iconMapDirection,
-                    userData = objectCount.toString()
-                )
-            }
-        }
-
-        objectManager = MapObjectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
     }
 
     fun makeClusteringIcon(context: ru.dgis.sdk.Context): Image? {
