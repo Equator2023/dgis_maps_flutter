@@ -271,6 +271,9 @@ abstract class PluginHostApi {
 
   /// Получение координат текущего экрана
   DataLatLngBounds getVisibleArea();
+
+  /// Удаление всех маркеров на карте
+  void removeAllMarkers();
 }
 
 @FlutterApi()

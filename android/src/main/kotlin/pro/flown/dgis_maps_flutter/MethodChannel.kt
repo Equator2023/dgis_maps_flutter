@@ -589,6 +589,8 @@ interface PluginHostApi {
   fun changeMyLocationLayerState(isVisible: Boolean)
   /** Получение координат текущего экрана */
   fun getVisibleArea(): DataLatLngBounds
+  /** Удаление всех маркеров на карте */
+  fun removeAllMarkers()
 
   companion object {
     /** The codec used by PluginHostApi. */
@@ -744,6 +746,23 @@ interface PluginHostApi {
             var wrapped = listOf<Any?>()
             try {
               wrapped = listOf<Any?>(api.getVisibleArea())
+            } catch (exception: Error) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginHostApi_$id.removeAllMarkers", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped = listOf<Any?>()
+            try {
+              api.removeAllMarkers()
+              wrapped = listOf<Any?>(null)
             } catch (exception: Error) {
               wrapped = wrapError(exception)
             }

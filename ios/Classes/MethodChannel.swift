@@ -527,6 +527,8 @@ protocol PluginHostApi {
   func changeMyLocationLayerState(isVisible: Bool)
   /// Получение координат текущего экрана
   func getVisibleArea() -> DataLatLngBounds
+  /// Удаление всех маркеров на карте
+  func removeAllMarkers()
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -650,6 +652,16 @@ class PluginHostApiSetup {
       }
     } else {
       getVisibleAreaChannel.setMessageHandler(nil)
+    }
+    /// Удаление всех маркеров на карте
+    let removeAllMarkersChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).removeAllMarkers", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      removeAllMarkersChannel.setMessageHandler { _, reply in
+        api.removeAllMarkers()
+        reply(wrapResult(nil))
+      }
+    } else {
+      removeAllMarkersChannel.setMessageHandler(nil)
     }
   }
 }
