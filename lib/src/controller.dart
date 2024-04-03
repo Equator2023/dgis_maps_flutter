@@ -30,6 +30,11 @@ class DGisMapController {
     );
   }
 
+  Future<void> removeAllMarkers() async {
+    await _completer.future;
+    await _api.removeAllMarkers();
+  }
+
   /// Получение текущей позиции карты [CameraPosition]
   Future<void> createRoute(GeoPoint startPoint, GeoPoint endPoint) async {
     await _completer.future;
