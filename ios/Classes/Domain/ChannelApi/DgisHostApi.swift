@@ -98,6 +98,10 @@ class DgisHostApi : NSObject, PluginHostApi {
     func updateMarkers(updates: DataMarkerUpdates) {
         mapObjectService.updateMarkers(markerUpdates: updates)
     }
+
+    func removeAllMarkers(){
+        mapObjectService.removeAllMarkers()
+    }
     
     func updatePolylines(updates: DataPolylineUpdates) {
         mapObjectService.updatePolylines(polylineUpdates: updates)
@@ -123,9 +127,4 @@ class DgisHostApi : NSObject, PluginHostApi {
             )
         )
     }
-
-    func clusteringMarkers(){
-        mapObjectService.clusteringMarkers()
-    }
-    
 }
