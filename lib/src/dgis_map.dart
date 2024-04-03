@@ -122,11 +122,6 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
     );
   }
 
-  Future<void> removeAllMarkers() async {
-    await _apiReady.future;
-    return api.removeAllMarkers();
-  }
-
   Future<void> onViewCreated(int id) async {
     api = PluginHostApi(id: id);
     final controller = DGisMapController(api, _apiReady, mapId: id);
