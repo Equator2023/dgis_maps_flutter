@@ -111,7 +111,8 @@ class DgisHostApi : NSObject, PluginHostApi {
         mapObjectService.toggleSelfMarker(isVisible: isVisible)
     }
 
-    func createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {   
+    func createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {
+        mapObjectService.createRoute(startPoint: GeoPoint(latitude: startPoint.latitude, longitude: startPoint.longitude), endPoint: GeoPoint(latitude: endPoint.latitude, longitude: endPoint.longitude))
     }
     
     func getVisibleArea() -> DataLatLngBounds {

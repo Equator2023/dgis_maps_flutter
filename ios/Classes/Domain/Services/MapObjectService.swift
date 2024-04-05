@@ -35,13 +35,13 @@ final class MapObjectService {
         let size: MarkerSize
     }
     
-    ///
     
     @Published var size: MarkerSize = .medium
     
     private let imageFactory: IImageFactory
     private let mapFactory: IMapFactory
     private let context: DGis.Context
+    private var routeSearchCancellable: Cancellable?
     
     // private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
     private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
@@ -52,7 +52,6 @@ final class MapObjectService {
       )
     private lazy var myLocationSource: MyLocationMapObjectSource = MyLocationMapObjectSource(
         context: context,
-        // directionBehaviour: .followMagneticHeading
         controller: MyLocationController(bearingSource: .magnetic)
     )
     private var icons: [TypeSize: DGis.Image] = [:]
@@ -177,5 +176,39 @@ final class MapObjectService {
             path.stroke()
         }
         return self.imageFactory.make(image: whiteCircleImage)
+    }
+
+    func createRoute(startPoint: DGis.GeoPoint, endPoint: DGis.GeoPoint) {
+        let point1 = RouteSearchPoint(coordinates: startPoint)
+        let point2 = RouteSearchPoint(coordinates: endPoint)
+
+        let routeSearchOptions = RouteSearchOptions.car(CarRouteSearchOptions())
+        let trafficRouter = TrafficRouter(context: context)
+        let routesFuture = trafficRouter.findRoute(
+            startPoint: point1,
+            finishPoint: point2,
+            routeSearchOptions: routeSearchOptions
+        )
+        
+        let routeMapObjectSource = RouteMapObjectSource(context: context, routeVisualizationType: .normal)
+        mapFactory.map.addSource(source: routeMapObjectSource)
+        
+        self.routeSearchCancellable = routesFuture.sink { routes in
+            for (index, route) in routes.enumerated() {
+                let routeMapObject = RouteMapObject(
+                    trafficRoute: route,
+                    isActive: index == 0,
+                    index: RouteIndex(value: UInt64(index)),
+                    displayFlags: nil
+                )
+                routeMapObjectSource.addObject(item: routeMapObject)
+
+                if index == 0 {
+                    break
+                }
+            }
+        } failure: { error in
+            print("Не удалось найти маршрут: \(error)")
+        }
     }
 }

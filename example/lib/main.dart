@@ -210,6 +210,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: const Text('addMarker'),
                   ),
                   TextButton(
+                    onPressed: createRoute,
+                    child: const Text('createRoute'),
+                  ),
+                  TextButton(
                     onPressed: moveCamera,
                     child: const Text('moveCamera'),
                   ),
@@ -240,10 +244,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   TextButton(
                     onPressed: moveMap,
                     child: const Text('moveMap'),
-                  ),
-                  TextButton(
-                    onPressed: createRoute,
-                    child: const Text('createRoute'),
                   ),
                   const SizedBox(width: 100),
                 ],
