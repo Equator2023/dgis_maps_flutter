@@ -197,7 +197,7 @@ final class MapObjectService {
         self.routeSearchCancellable = routesFuture.sink { routes in
             for (index, route) in routes.enumerated() {
                 let routeMapObject = RouteMapObject(
-                    trafficRoute: route,
+                    // trafficRoute: route,
                     route: route,
                     isActive: index == 0,
                     index: RouteIndex(value: UInt64(index)),
