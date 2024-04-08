@@ -52,8 +52,8 @@ final class MapObjectService {
       )
     private lazy var myLocationSource: MyLocationMapObjectSource = MyLocationMapObjectSource(
         context: context,
-        // directionBehaviour: .followMagneticHeading
-        controller: MyLocationController(bearingSource: .magnetic)
+        directionBehaviour: .followMagneticHeading
+        // controller: MyLocationController(bearingSource: .magnetic)
     )
     private var icons: [TypeSize: DGis.Image] = [:]
     
@@ -198,6 +198,7 @@ final class MapObjectService {
             for (index, route) in routes.enumerated() {
                 let routeMapObject = RouteMapObject(
                     trafficRoute: route,
+                    route: route,
                     isActive: index == 0,
                     index: RouteIndex(value: UInt64(index)),
                     displayFlags: nil
