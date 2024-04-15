@@ -30,6 +30,7 @@ class DGisMapController {
     );
   }
 
+  // Удаление всех маркеров
   Future<void> removeAllMarkers() async {
     await _completer.future;
     await _api.removeAllMarkers();
@@ -75,5 +76,17 @@ class DGisMapController {
       duration,
       cameraAnimationType,
     );
+  }
+
+  // Начать навигацию
+  Future<void> startNavigation(DataGeoPoint endPoint) async {
+    await _completer.future;
+    _api.startNavigation(endPoint);
+  }
+
+  // Начать навигацию
+  Future<void> stopNavigation() async {
+    await _completer.future;
+    _api.stopNavigation();
   }
 }

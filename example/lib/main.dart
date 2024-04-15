@@ -4,10 +4,22 @@ import 'dart:math';
 import 'package:dgis_maps_flutter/dgis_maps_flutter.dart';
 import 'package:example/core/map_markers.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
-void main() {
+Future<void> main() async {
   runApp(const MyApp());
+  checkPermission();
+}
+
+void checkPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return;
+    }
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -137,22 +149,57 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  void toggleMyLocation() {
-    setState(() {
-      myLocationEnabled = !myLocationEnabled;
-    });
+  void toggleMyLocation() async {
+    if (!myLocationEnabled) {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return; // GPS не активирован
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission != LocationPermission.whileInUse &&
+            permission != LocationPermission.always) {
+          return; // Разрешение не предоставлено
+        }
+      }
+
+      myLocationEnabled = true; // Активируем отображение местоположения
+      Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) {
+        controller.moveCamera(
+          cameraPosition: CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 16,
+          ),
+        );
+        print("Current position: ${position.latitude}, ${position.longitude}");
+      });
+      setState(() {});
+    } else {
+      myLocationEnabled = false; // Деактивируем отображение местоположения
+      setState(() {});
+    }
   }
 
   @override
   void initState() {
     super.initState();
     // getDirections();
+    Geolocator.getServiceStatusStream().listen(
+      (ServiceStatus status) {
+        print("GPS Status: $status");
+        if (status == ServiceStatus.enabled && myLocationEnabled == false) {
+          toggleMyLocation();
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text("DGis Map Example")),
       // floatingActionButton: FloatingActionButton(
       //   child: Text("iter\n$i"),
       //   onPressed: () => setState(() => i++),
@@ -210,8 +257,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: const Text('addMarker'),
                   ),
                   TextButton(
-                    onPressed: createRoute,
+                    onPressed: toggleMyLocation,
+                    child: Text(myLocationEnabled
+                        ? "Disable My Location"
+                        : "Enable My Location"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      createRoute(LatLng(43.25665970536574, 76.90037763082212));
+                    },
                     child: const Text('createRoute'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      startNavigation(
+                          LatLng(43.25665970536574, 76.90037763082212));
+                    },
+                    child: const Text('startNavigation'),
+                  ),
+                  TextButton(
+                    onPressed: stopNavigation,
+                    child: const Text('stopNavigation'),
                   ),
                   TextButton(
                     onPressed: moveCamera,
@@ -228,10 +294,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   TextButton(
                     onPressed: addPolyline,
                     child: const Text('addPolyline'),
-                  ),
-                  TextButton(
-                    onPressed: toggleMyLocation,
-                    child: const Text('toggleMyLocation'),
                   ),
                   TextButton(
                     onPressed: shrinkMapTop,
@@ -282,28 +344,49 @@ class _MyHomePageState extends State<MyHomePage> {
     print('Response body: ${response.body}');
   }
 
-  void createRoute() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: SizedBox(
-              width: 150,
-              height: 150,
-              child: Center(
-                  child: CircularProgressIndicator(
-                color: Colors.grey,
-              ))),
-        );
-      },
-    );
+  void createRoute(LatLng endPoint) async {
+    try {
+      Position currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      GeoPoint startPoint = GeoPoint(
+          latitude: currentPosition.latitude,
+          longitude: currentPosition.longitude);
+      GeoPoint destinationPoint =
+          GeoPoint(latitude: endPoint.latitude, longitude: endPoint.longitude);
 
-    await controller.createRoute(
-      GeoPoint(latitude: 43.2451643117112, longitude: 76.83592641374008),
-      GeoPoint(latitude: 43.23046997709439, longitude: 76.89557874085693),
-    );
+      await controller.createRoute(startPoint, destinationPoint);
 
-    Navigator.of(context).pop();
+      // Вычисление границ для отображения маршрута
+      LatLngBounds routeBounds = LatLngBounds(
+        southwest: LatLng(
+          min(startPoint.latitude, destinationPoint.latitude),
+          min(startPoint.longitude, destinationPoint.longitude),
+        ),
+        northeast: LatLng(
+          max(startPoint.latitude, destinationPoint.latitude),
+          max(startPoint.longitude, destinationPoint.longitude),
+        ),
+      );
+
+      // Анимированное перемещение камеры, чтобы весь маршрут был виден
+      await controller.moveCameraToBounds(
+          cameraPosition: routeBounds, padding: MapPadding.all(50));
+    } catch (e) {
+      print("Error getting current position or creating route: $e");
+    }
+  }
+
+  Future<void> startNavigation(LatLng endPoint) async {
+    try {
+      GeoPoint destinationPoint =
+          GeoPoint(latitude: endPoint.latitude, longitude: endPoint.longitude);
+      await controller.startNavigation(destinationPoint);
+    } catch (e) {
+      print("Error getting current position or starting navigation: $e");
+    }
+  }
+
+  Future<void> stopNavigation() async {
+    await controller.stopNavigation();
   }
 }

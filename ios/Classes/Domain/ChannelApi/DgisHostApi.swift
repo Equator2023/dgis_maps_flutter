@@ -128,4 +128,8 @@ class DgisHostApi : NSObject, PluginHostApi {
             )
         )
     }
+
+    func startNavigation() {
+        mapObjectService.startNavigation();
+    }
 }

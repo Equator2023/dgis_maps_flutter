@@ -18,10 +18,10 @@ import ru.dgis.sdk.geometry.ComplexGeometry
 import ru.dgis.sdk.geometry.PointGeometry
 import ru.dgis.sdk.map.*
 import ru.dgis.sdk.map.Map
-import ru.dgis.sdk.positioning.registerPlatformLocationSource
-import ru.dgis.sdk.positioning.registerPlatformMagneticSource
+import ru.dgis.sdk.positioning.*
 import ru.dgis.sdk.routing.*
 import ru.dgis.sdk.coordinates.GeoPoint
+import ru.dgis.sdk.navigation.*
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -33,8 +33,7 @@ import android.graphics.Bitmap.Config
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-
-
+import android.view.ViewGroup
 
 class DgisMapController internal constructor(
         id: Int,
@@ -50,10 +49,15 @@ class DgisMapController internal constructor(
     private lateinit var objectManager: MapObjectManager
     private lateinit var routeEditor: RouteEditor
     private lateinit var trafficRouter: TrafficRouter
+    private lateinit var navigationManager: NavigationManager
     private lateinit var routeMapObjectSource: RouteMapObjectSource
-    private var myLocationSource: MyLocationMapObjectSource? = null
     private lateinit var cameraStateConnection: AutoCloseable
     private lateinit var dataLoadingConnection: AutoCloseable
+    private lateinit var navigationView: NavigationView
+
+
+    private var myLocationSource: MyLocationMapObjectSource? = null
+    private var currentRoute: TrafficRoute? = null
 
     init {
         sdkContext = DGis.initialize(context.applicationContext)
@@ -64,7 +68,6 @@ class DgisMapController internal constructor(
 
         // Создаем канал для общения..
         methodChannel = MethodChannel(binaryMessenger, "fgis")
-//        methodChannel.setMethodCallHandler(this)
 
         val params = DataCreationParams.fromList(args as List<Any?>)
         mapView = MapView(context, MapOptions().also {
@@ -91,41 +94,32 @@ class DgisMapController internal constructor(
                         if (renderedObjectInfo.item.item is SimpleClusterObject) {
                             val cluster = renderedObjectInfo.item.item as SimpleClusterObject
                             val clusterObjects = cluster.objects.map {listOf((it as Marker).position.latitude.value, (it as Marker).position.longitude.value)}
-
-                            val args = mapOf(
-                                "objects" to clusterObjects
-                            )
-                            methodChannel.invokeMethod(
-                                "ontap_cluster",
-                                args
-                            )
-
+                            val args = mapOf("objects" to clusterObjects)
+                            methodChannel.invokeMethod("ontap_cluster", args)
                             break
                         }
                         else if (renderedObjectInfo.item.item.userData != null) {
-                            val args = mapOf(
-                                    "id" to renderedObjectInfo.item.item.userData
-                            )
-
+                            val args = mapOf("id" to renderedObjectInfo.item.item.userData)
                             Log.d("DGIS", "нажатие на камеру")
-
-                            methodChannel.invokeMethod(
-                                    "ontap_marker",
-                                    args
-                            )
+                            methodChannel.invokeMethod("ontap_marker", args)
                             isMarkerTapped = true;
                         }
                     }
-//                    if (!isMarkerTapped) {
-//                        methodChannel.invokeMethod(
-//                            "ontap_map",
-//                            {},
-//                        )
-//                    }
                 }
                 super.onTap(point)
             }
         })
+
+        // Создаем NavigationView и добавляем элементы управления навигации
+        navigationView = NavigationView(context.applicationContext)
+        val navLayoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        navigationView.layoutParams = navLayoutParams
+
+//        val defaultNavigationControls = DefaultNavigationControls(context.applicationContext)
+//        val controlLayoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        navigationView.addView(defaultNavigationControls, controlLayoutParams)
+
+        mapView.addView(navigationView, navLayoutParams)
     }
 
     override fun getView(): View {
@@ -156,7 +150,6 @@ class DgisMapController internal constructor(
                 val iconMapDirection = if (objectCount < 5) MapDirection(45.0) else null
                 return SimpleClusterOptions(
                     icon = makeClusteringIcon(context = sdkContext),
-//                    icon = imageFromResource(context = sdkContext, resourceId = R.drawable.dgis_ic_road_event_marker_comment),
                     iconWidth = LogicalPixel(30.0f),
                     text = objectCount.toString(),
                     textStyle = textStyle,
@@ -169,22 +162,20 @@ class DgisMapController internal constructor(
         cameraStateConnection = map.camera.stateChannel.connect {
             flutterApi.onCameraStateChanged(toDataCameraStateValue(it)) {}
         }
+
         routeEditor = RouteEditor(sdkContext)
         trafficRouter = TrafficRouter(sdkContext)
+
+        navigationManager = NavigationManager(sdkContext)
+        navigationManager.voiceSelector.voice = null
+        navigationView.navigationManager = navigationManager
+
         routeMapObjectSource = RouteMapObjectSource(sdkContext, RouteVisualizationType.NORMAL)
         map.addSource(routeMapObjectSource)
         val routeEditorSource = RouteEditorSource(sdkContext, routeEditor)
 //        map.addSource(routeEditorSource)
 
         objectManager = MapObjectManager.withClustering(map, LogicalPixel(80.0f), Zoom(18.0f), clusterRenderer)
-
-//        val searchManager = SearchManager.createOnlineManager(sdkContext)
-//        searchManager.search(SearchQueryBuilder.fromQueryText("осенний").build()).onResult {
-//            it.itemMarkerInfos.onResult { it ->
-//                Log.v("searchMarkers", it.toString())
-//            }
-//            Log.v("onSearch", it.toString())
-//        }
     }
 
     override fun changeMyLocationLayerState(isVisible: Boolean) {
@@ -267,73 +258,22 @@ class DgisMapController internal constructor(
         val startPointGeo = toGeoPoint(startPoint)
         val endPointGeo = toGeoPoint(endPoint)
 
-        // Ищем маршрут
+
         val routesFuture = trafficRouter.findRoute(
             startPoint = RouteSearchPoint(coordinates = startPointGeo),
             finishPoint = RouteSearchPoint(coordinates = endPointGeo),
             routeSearchOptions = RouteSearchOptions(car = CarRouteSearchOptions())
         )
 
-        // После получения маршрута добавляем его на карту
-
         routesFuture.onResult { routes: List<TrafficRoute> ->
             if (routes.isNotEmpty()) {
-//                 Очищаем предыдущие маршруты
+                currentRoute = routes.first()
                 routeMapObjectSource.clear()
-
-                // Добавляем новый маршрут на карту
-                // Все маршруты
-//                routes.forEachIndexed { index, route ->
-//                    val routeMapObject =
-//                        RouteMapObject(route, isActive = true, index = RouteIndex(index.toLong()))
-//                    routeMapObjectSource.addObject(routeMapObject)
-//                }
 
                 val routeMapObject = RouteMapObject(routes.first(), isActive = true, index = RouteIndex(0))
                 routeMapObjectSource.addObject(routeMapObject)
             }
         }
-
-//        -----------
-        // Ищем маршрут
-//        val routesFuture = trafficRouter.findRoute(
-//                startPoint = RouteSearchPoint(
-//                        coordinates = toGeoPoint(startPoint)
-//                ),
-//                finishPoint = RouteSearchPoint(
-//                        coordinates = toGeoPoint(endPoint)
-//                ),
-//                routeSearchOptions = RouteSearchOptions(
-//                        car = CarRouteSearchOptions()
-//                )
-//        )
-//
-//        // После получения маршрута добавляем его на карту
-//        routesFuture.onResult { routes: List<TrafficRoute> ->
-//            var isActive = true
-//            var routeIndex: Long = 0;
-//            for (route in routes) {
-//                routeMapObjectSource.addObject(
-//                        RouteMapObject(route, isActive, index = RouteIndex(routeIndex))
-//                )
-//                isActive = false
-//                routeIndex++
-//            }
-//        }
-//        -------------
-//        routeEditor.setRouteParams(
-//                RouteEditorRouteParams(
-//                        startPoint = RouteSearchPoint(
-//                                coordinates = toGeoPoint(startPoint)
-//                        ),
-//                        finishPoint = RouteSearchPoint(
-//                                coordinates = toGeoPoint(endPoint)
-//                        ),
-//                        routeSearchOptions = RouteSearchOptions(
-//                                car = CarRouteSearchOptions()
-//                        )
-//                )
-//        )
     }
 
     override fun updatePolylines(updates: DataPolylineUpdates) {
@@ -363,5 +303,42 @@ class DgisMapController internal constructor(
         paint.strokeWidth = 3.0f
         canvas.drawOval(rect, paint)
         return bitmap
+    }
+
+    override fun startNavigation(endPoint: DataGeoPoint) {
+        val routeBuildOptions = RouteBuildOptions(
+            /// Without route
+            finishPoint = RouteSearchPoint(
+                coordinates = toGeoPoint(endPoint)
+            ),
+            routeSearchOptions = RouteSearchOptions(
+                car = CarRouteSearchOptions(
+                    avoidTollRoads = true,
+                    avoidUnpavedRoads = false,
+                    avoidFerries = false,
+                    routeSearchType = RouteSearchType.JAM
+                )
+            )
+        )
+
+        navigationManager.simulationSettings.speedMode = SimulationSpeedMode(SimulationConstantSpeed(200.0))
+        currentRoute?.let { route ->
+            /// Simulation
+            navigationManager.startSimulation(routeBuildOptions, route)
+            /// Without route
+//            navigationManager.start(routeBuildOptions)
+            /// With route
+//            navigationManager.start(routeBuildOptions, route)
+        }
+
+        navigationManager.uiModel.routePositionChannel.connect { point ->
+            point?.let {
+                println("Position changed: ${point.distance}")
+            }
+        }
+    }
+
+    override fun stopNavigation() {
+        navigationManager.stop()
     }
 }

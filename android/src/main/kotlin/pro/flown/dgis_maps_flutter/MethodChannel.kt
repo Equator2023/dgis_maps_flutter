@@ -591,6 +591,10 @@ interface PluginHostApi {
   fun getVisibleArea(): DataLatLngBounds
   /** Удаление всех маркеров на карте */
   fun removeAllMarkers()
+  /** Начать навигацию по маршруту */
+  fun startNavigation(endPoint: DataGeoPoint)
+  /** Остановить навигацию по маршруту */
+  fun stopNavigation()
 
   companion object {
     /** The codec used by PluginHostApi. */
@@ -762,6 +766,42 @@ interface PluginHostApi {
             var wrapped = listOf<Any?>()
             try {
               api.removeAllMarkers()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Error) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginHostApi_$id.startNavigation", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            var wrapped = listOf<Any?>()
+            try {
+              val args = message as List<Any?>
+              val endPointArg = args[0] as DataGeoPoint
+              api.startNavigation(endPointArg)
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Error) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginHostApi_$id.stopNavigation", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped = listOf<Any?>()
+            try {
+              api.stopNavigation()
               wrapped = listOf<Any?>(null)
             } catch (exception: Error) {
               wrapped = wrapError(exception)

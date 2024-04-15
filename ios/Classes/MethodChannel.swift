@@ -529,6 +529,10 @@ protocol PluginHostApi {
   func getVisibleArea() -> DataLatLngBounds
   /// Удаление всех маркеров на карте
   func removeAllMarkers()
+  /// Начать навигацию по маршруту
+  func startNavigation(endPoint: DataGeoPoint)
+  /// Остановить навигацию по маршруту
+  func stopNavigation()
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -662,6 +666,28 @@ class PluginHostApiSetup {
       }
     } else {
       removeAllMarkersChannel.setMessageHandler(nil)
+    }
+    /// Начать навигацию по маршруту
+    let startNavigationChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).startNavigation", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      startNavigationChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let endPointArg = args[0] as! DataGeoPoint
+        api.startNavigation(endPoint: endPointArg)
+        reply(wrapResult(nil))
+      }
+    } else {
+      startNavigationChannel.setMessageHandler(nil)
+    }
+    /// Остановить навигацию по маршруту
+    let stopNavigationChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).stopNavigation", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      stopNavigationChannel.setMessageHandler { _, reply in
+        api.stopNavigation()
+        reply(wrapResult(nil))
+      }
+    } else {
+      stopNavigationChannel.setMessageHandler(nil)
     }
   }
 }

@@ -274,6 +274,12 @@ abstract class PluginHostApi {
 
   /// Удаление всех маркеров на карте
   void removeAllMarkers();
+
+  /// Начать навигацию по маршруту
+  void startNavigation(DataGeoPoint endPoint);
+
+  /// Остановить навигацию по маршруту
+  void stopNavigation();
 }
 
 @FlutterApi()

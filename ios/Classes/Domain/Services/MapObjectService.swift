@@ -213,4 +213,9 @@ final class MapObjectService {
             print("Не удалось найти маршрут: \(error)")
         }
     }
+
+    func startNavigation() {
+        navigationManager = NavigationManager(sdkContext)
+        navigationManager?.start()
+    }
 }
