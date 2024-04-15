@@ -129,7 +129,11 @@ class DgisHostApi : NSObject, PluginHostApi {
         )
     }
 
-    func startNavigation() {
-        mapObjectService.startNavigation();
+    func startNavigation(endPoint: DataGeoPoint) {
+        mapObjectService.startNavigation(endPoint: GeoPoint(latitude: endPoint.latitude, longitude: endPoint.longitude));
+    }
+
+    func stopNavigation(){
+        mapObjectService.stopNavigation()
     }
 }

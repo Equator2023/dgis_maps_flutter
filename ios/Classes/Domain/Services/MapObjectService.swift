@@ -42,6 +42,8 @@ final class MapObjectService {
     private let mapFactory: IMapFactory
     private let context: DGis.Context
     private var routeSearchCancellable: Cancellable?
+    private var navigationManager: NavigationManager
+    private var currentRoute: TrafficRoute?
     
     // private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
     private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
@@ -52,17 +54,36 @@ final class MapObjectService {
       )
     private lazy var myLocationSource: MyLocationMapObjectSource = MyLocationMapObjectSource(
         context: context,
-        directionBehaviour: .followMagneticHeading
-//         controller: MyLocationController(bearingSource: .magnetic)
+        // directionBehaviour: .followMagneticHeading
+        controller: MyLocationController(bearingSource: .magnetic)
     )
     private var icons: [TypeSize: DGis.Image] = [:]
     
     
     init(dgisSdkService: DGisSdkService) {
-        
         self.imageFactory = try! DGisSdkService.sdk.makeImageFactory()
         self.mapFactory = dgisSdkService.mapFactory
         self.context = try! DGisSdkService.sdk.context
+
+        self.navigationManager = try! NavigationManager(platformContext: self.context)
+        self.navigationManager.mapManager.addMap(map: self.mapFactory.map)
+
+        let mapView = mapFactory.mapView
+
+        let navigationViewFactory = try! DGisSdkService.sdk.makeNavigationViewFactory()
+
+        let navigationView = navigationViewFactory.makeNavigationView(
+            map: mapFactory.map,
+            navigationManager: self.navigationManager
+        )
+        navigationView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.addSubview(navigationView)
+        NSLayoutConstraint.activate([
+            navigationView.leftAnchor.constraint(equalTo: mapView.leftAnchor),
+            navigationView.rightAnchor.constraint(equalTo: mapView.rightAnchor),
+            navigationView.topAnchor.constraint(equalTo: mapView.topAnchor),
+            navigationView.bottomAnchor.constraint(equalTo: mapView.bottomAnchor)
+        ])
     }
     
     func toggleSelfMarker(isVisible: Bool) {
@@ -195,14 +216,17 @@ final class MapObjectService {
         mapFactory.map.addSource(source: routeMapObjectSource)
         
         self.routeSearchCancellable = routesFuture.sink { routes in
+            routeMapObjectSource.clear()
             for (index, route) in routes.enumerated() {
+                self.currentRoute = route
                 let routeMapObject = RouteMapObject(
-//                     trafficRoute: route,
-                    route: route,
+                    trafficRoute: route,
+                    // route: route,
                     isActive: index == 0,
                     index: RouteIndex(value: UInt64(index)),
                     displayFlags: nil
                 )
+                
                 routeMapObjectSource.addObject(item: routeMapObject)
 
                 if index == 0 {
@@ -214,8 +238,25 @@ final class MapObjectService {
         }
     }
 
-    func startNavigation() {
-        navigationManager = NavigationManager(sdkContext)
-        navigationManager?.start()
+    func startNavigation(endPoint: DGis.GeoPoint) {
+        // guard let currentRoute = self.currentRoute else {
+        //     return
+        // }
+
+        let routeBuildOptions = RouteBuildOptions(
+            finishPoint: RouteSearchPoint(coordinates: endPoint),
+            routeSearchOptions: RouteSearchOptions.car(CarRouteSearchOptions())
+        )
+
+        do {
+            // try self.navigationManager.startSimulation(routeBuildOptions: routeBuildOptions, trafficRoute: currentRoute)
+            try self.navigationManager.start(routeBuildOptions: routeBuildOptions)
+        } catch {
+            print("Failed to start navigation: \(error)")
+        }
+    }
+
+    func stopNavigation(){
+        navigationManager.stop()
     }
 }

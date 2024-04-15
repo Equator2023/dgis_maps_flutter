@@ -84,7 +84,7 @@ class DGisMapController {
     _api.startNavigation(endPoint);
   }
 
-  // Начать навигацию
+  // Остановить навигацию
   Future<void> stopNavigation() async {
     await _completer.future;
     _api.stopNavigation();
