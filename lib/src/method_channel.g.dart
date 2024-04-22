@@ -936,6 +936,9 @@ abstract class PluginFlutterApi {
   /// Коллбэк на нажатие кластеризованного объекта
   void onClusterObjectTapped(List<Object?> points);
 
+  /// Коллбэк передачи данных по маршруту
+  void onRoutePositionChanged(String duration, String distance);
+
   static void setup(PluginFlutterApi? api, {BinaryMessenger? binaryMessenger, required int id}) {
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
@@ -1004,6 +1007,28 @@ abstract class PluginFlutterApi {
           assert(arg_points != null,
               'Argument for pro.flown.PluginFlutterApi_$id.onClusterObjectTapped was null, expected non-null List<Object?>.');
           api.onClusterObjectTapped(arg_points!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'pro.flown.PluginFlutterApi_$id.onRoutePositionChanged', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for pro.flown.PluginFlutterApi_$id.onRoutePositionChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_duration = (args[0] as String?);
+          assert(arg_duration != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onRoutePositionChanged was null, expected non-null String.');
+          final String? arg_distance = (args[1] as String?);
+          assert(arg_distance != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onRoutePositionChanged was null, expected non-null String.');
+          api.onRoutePositionChanged(arg_duration!, arg_distance!);
           return;
         });
       }

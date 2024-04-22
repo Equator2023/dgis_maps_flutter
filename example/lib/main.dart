@@ -56,6 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
 
+  bool isNavigationActive = false;
+  String remainingDistance = '';
+  String remainingDuration = '';
+
   List<LatLng> points = [
     LatLng(43.24103142234661, 76.91515532883092),
     LatLng(43.24553402103508, 76.90073286394733),
@@ -236,6 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onClusterTapped: (markers) {
                 print(markers);
               },
+              onRoutePositionChanged: onRoutePositionChanged,
             ),
           ),
           AnimatedCrossFade(
@@ -246,6 +251,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 : CrossFadeState.showSecond,
             duration: const Duration(seconds: 2),
           ),
+          isNavigationActive
+              ? SizedBox(
+                  height: 40,
+                  child: Text(
+                    'Оставшееся время: $remainingDuration,\nОставшееся расстояние: $remainingDistance',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : const SizedBox.shrink(),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
@@ -381,6 +395,8 @@ class _MyHomePageState extends State<MyHomePage> {
       GeoPoint destinationPoint =
           GeoPoint(latitude: endPoint.latitude, longitude: endPoint.longitude);
       await controller.startNavigation(destinationPoint);
+      isNavigationActive = true;
+      setState(() {});
     } catch (e) {
       print("Error getting current position or starting navigation: $e");
     }
@@ -388,5 +404,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> stopNavigation() async {
     await controller.stopNavigation();
+    isNavigationActive = false;
+    setState(() {});
+  }
+
+  void onRoutePositionChanged(String duration, String distance) async {
+    remainingDuration = duration;
+    remainingDistance = distance;
+    setState(() {});
   }
 }

@@ -296,6 +296,9 @@ abstract class PluginFlutterApi {
 
   /// Коллбэк на нажатие кластеризованного объекта
   void onClusterObjectTapped(List<Object> points);
+
+  /// Коллбэк передачи данных по маршруту
+  void onRoutePositionChanged(String duration, String distance);
 }
 
 /// Класс, используемый для генерации моделей,

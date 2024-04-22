@@ -30,6 +30,7 @@ class DGisMap extends StatefulWidget {
     required this.onClusterTapped,
     this.mapTheme = MapTheme.auto,
     this.onTapMap,
+    this.onRoutePositionChanged,
   }) : super(key: key);
 
   final CameraPosition initialPosition;
@@ -39,6 +40,7 @@ class DGisMap extends StatefulWidget {
   final Function(Marker?) onTapMarker;
   final Function()? onTapMap;
   final Function(List<dynamic>) onClusterTapped;
+  final Function(String duration, String distance)? onRoutePositionChanged;
 
   final Set<Marker> markers;
   final Set<Polyline> polylines;
@@ -240,6 +242,13 @@ class _DGisMapState extends State<DGisMap> implements PluginFlutterApi {
   @override
   void onClusterObjectTapped(List<Object?> points) async {
     widget.onClusterTapped(points);
+  }
+
+  @override
+  void onRoutePositionChanged(String duration, String distance) async {
+    if (widget.onRoutePositionChanged != null) {
+      widget.onRoutePositionChanged!(duration, distance);
+    }
   }
 
   // @override

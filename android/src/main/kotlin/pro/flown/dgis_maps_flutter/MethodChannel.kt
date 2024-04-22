@@ -986,4 +986,11 @@ class PluginFlutterApi(private val binaryMessenger: BinaryMessenger, private val
       callback()
     }
   }
+  /** Коллбэк передачи данных по маршруту */
+  fun onRoutePositionChanged(durationArg: String, distanceArg: String, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onRoutePositionChanged", codec)
+    channel.send(listOf(durationArg, distanceArg)) {
+      callback()
+    }
+  }
 }

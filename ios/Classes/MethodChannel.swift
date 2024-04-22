@@ -827,4 +827,11 @@ class PluginFlutterApi {
       completion()
     }
   }
+  /// Коллбэк передачи данных по маршруту
+  func onRoutePositionChanged(duration durationArg: String, distance distanceArg: String, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onRoutePositionChanged", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([durationArg, distanceArg] as [Any?]) { _ in
+      completion()
+    }
+  }
 }

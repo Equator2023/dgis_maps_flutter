@@ -58,6 +58,8 @@ class DgisMapController internal constructor(
 
     private var myLocationSource: MyLocationMapObjectSource? = null
     private var currentRoute: TrafficRoute? = null
+    private var currentPosition: RoutePoint? = null
+    private var remainingDistance: String? = null
 
     init {
         sdkContext = DGis.initialize(context.applicationContext)
@@ -324,18 +326,35 @@ class DgisMapController internal constructor(
         navigationManager.simulationSettings.speedMode = SimulationSpeedMode(SimulationConstantSpeed(200.0))
         currentRoute?.let { route ->
             /// Simulation
-            navigationManager.startSimulation(routeBuildOptions, route)
+//            navigationManager.startSimulation(routeBuildOptions, route)
             /// Without route
-//            navigationManager.start(routeBuildOptions)
+            navigationManager.start(routeBuildOptions)
             /// With route
 //            navigationManager.start(routeBuildOptions, route)
         }
 
-        navigationManager.uiModel.routePositionChannel.connect { point ->
-            point?.let {
-                println("Position changed: ${point.distance}")
+        navigationManager.uiModel.routePositionChannel.connect { position ->
+            position?.let {
+                currentPosition = position
+                remainingDistance = convertMillimetersToKilometers(navigationManager.uiModel.route.route.geometry.length.minus(position.distance).millimeters)
             }
         }
+
+        navigationManager.uiModel.dynamicRouteInfoChannel.connect { info ->
+            info?.let {
+                currentPosition?.let { routePoint ->
+                    val durationString = info.traffic.durations.calculateDuration(routePoint).toString()
+                    remainingDistance?.let { distance ->
+                        flutterApi.onRoutePositionChanged(durationString, distance){}
+                    }
+                }
+            }
+        }
+    }
+
+    fun convertMillimetersToKilometers(mm: Long): String {
+        val kilometers = mm / 1000000.0
+        return String.format("%.1f км", kilometers)
     }
 
     override fun stopNavigation() {
