@@ -241,6 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 print(markers);
               },
               onRoutePositionChanged: onRoutePositionChanged,
+              onCatchErrorMessage: onCatchErrorMessage,
             ),
           ),
           AnimatedCrossFade(
@@ -412,5 +413,9 @@ class _MyHomePageState extends State<MyHomePage> {
     remainingDuration = duration;
     remainingDistance = distance;
     setState(() {});
+  }
+
+  void onCatchErrorMessage(String message) async {
+    print(" ------------ $message");
   }
 }

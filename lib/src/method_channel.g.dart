@@ -939,6 +939,9 @@ abstract class PluginFlutterApi {
   /// Коллбэк передачи данных по маршруту
   void onRoutePositionChanged(String duration, String distance);
 
+  /// Коллбэк для распечатки ошибок
+  void onCatchErrorMessage(String message);
+
   static void setup(PluginFlutterApi? api, {BinaryMessenger? binaryMessenger, required int id}) {
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
@@ -1029,6 +1032,25 @@ abstract class PluginFlutterApi {
           assert(arg_distance != null,
               'Argument for pro.flown.PluginFlutterApi_$id.onRoutePositionChanged was null, expected non-null String.');
           api.onRoutePositionChanged(arg_duration!, arg_distance!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'pro.flown.PluginFlutterApi_$id.onCatchErrorMessage', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for pro.flown.PluginFlutterApi_$id.onCatchErrorMessage was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_message = (args[0] as String?);
+          assert(arg_message != null,
+              'Argument for pro.flown.PluginFlutterApi_$id.onCatchErrorMessage was null, expected non-null String.');
+          api.onCatchErrorMessage(arg_message!);
           return;
         });
       }

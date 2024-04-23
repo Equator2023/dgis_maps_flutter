@@ -354,7 +354,7 @@ class DgisMapController internal constructor(
 
     fun convertMillimetersToKilometers(mm: Long): String {
         val kilometers = mm / 1000000.0
-        return String.format("%.1f км", kilometers)
+        return String.format("%.1f", kilometers)
     }
 
     override fun stopNavigation() {

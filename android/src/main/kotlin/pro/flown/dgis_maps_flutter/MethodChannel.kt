@@ -993,4 +993,11 @@ class PluginFlutterApi(private val binaryMessenger: BinaryMessenger, private val
       callback()
     }
   }
+  /** Коллбэк для распечатки ошибок */
+  fun onCatchErrorMessage(messageArg: String, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginFlutterApi_$id.onCatchErrorMessage", codec)
+    channel.send(listOf(messageArg)) {
+      callback()
+    }
+  }
 }

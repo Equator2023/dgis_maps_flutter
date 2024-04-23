@@ -299,6 +299,9 @@ abstract class PluginFlutterApi {
 
   /// Коллбэк передачи данных по маршруту
   void onRoutePositionChanged(String duration, String distance);
+
+  /// Коллбэк для распечатки ошибок
+  void onCatchErrorMessage(String message);
 }
 
 /// Класс, используемый для генерации моделей,

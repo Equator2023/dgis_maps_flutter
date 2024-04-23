@@ -44,6 +44,12 @@ final class MapObjectService {
     private var routeSearchCancellable: Cancellable?
     private var navigationManager: NavigationManager
     private var currentRoute: TrafficRoute?
+    private var navigationView: INavigationView?
+    private var routeMapObjectSource: RouteMapObjectSource
+    private let flutterApi: PluginFlutterApi
+
+    private var currentPosition: RoutePoint?
+    private var remainingDistance: String?
     
     // private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
     private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
@@ -60,10 +66,14 @@ final class MapObjectService {
     private var icons: [TypeSize: DGis.Image] = [:]
     
     
-    init(dgisSdkService: DGisSdkService) {
+    init(dgisSdkService: DGisSdkService, flutterApi: PluginFlutterApi) {
         self.imageFactory = try! DGisSdkService.sdk.makeImageFactory()
         self.mapFactory = dgisSdkService.mapFactory
         self.context = try! DGisSdkService.sdk.context
+        self.flutterApi = flutterApi
+
+        self.routeMapObjectSource = RouteMapObjectSource(context: self.context, routeVisualizationType: .normal)
+        mapFactory.map.addSource(source: routeMapObjectSource)
 
         self.navigationManager = try! NavigationManager(platformContext: self.context)
         self.navigationManager.mapManager.addMap(map: self.mapFactory.map)
@@ -76,14 +86,16 @@ final class MapObjectService {
             map: mapFactory.map,
             navigationManager: self.navigationManager
         )
-        navigationView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.addSubview(navigationView)
-        NSLayoutConstraint.activate([
-            navigationView.leftAnchor.constraint(equalTo: mapView.leftAnchor),
-            navigationView.rightAnchor.constraint(equalTo: mapView.rightAnchor),
-            navigationView.topAnchor.constraint(equalTo: mapView.topAnchor),
-            navigationView.bottomAnchor.constraint(equalTo: mapView.bottomAnchor)
-        ])
+
+        // mapView.addSubview(navigationView)
+        // navigationView.frame = CGRect(x: 0, y: 0, width: mapView.frame.size.width, height: mapView.frame.size.height)
+        // navigationView.translatesAutoresizingMaskIntoConstraints = false
+        // NSLayoutConstraint.activate([
+        //     navigationView.topAnchor.constraint(equalTo: mapView.topAnchor),
+        //     navigationView.leadingAnchor.constraint(equalTo: mapView.leadingAnchor),
+        //     navigationView.trailingAnchor.constraint(equalTo: mapView.trailingAnchor),
+        //     navigationView.heightAnchor.constraint(equalTo: mapView.bottomAnchor)
+        // ])
     }
     
     func toggleSelfMarker(isVisible: Bool) {
@@ -212,11 +224,9 @@ final class MapObjectService {
             routeSearchOptions: routeSearchOptions
         )
         
-        let routeMapObjectSource = RouteMapObjectSource(context: context, routeVisualizationType: .normal)
-        mapFactory.map.addSource(source: routeMapObjectSource)
+        self.routeMapObjectSource.clear()
         
         self.routeSearchCancellable = routesFuture.sink { routes in
-            routeMapObjectSource.clear()
             for (index, route) in routes.enumerated() {
                 self.currentRoute = route
                 let routeMapObject = RouteMapObject(
@@ -227,7 +237,7 @@ final class MapObjectService {
                     displayFlags: nil
                 )
                 
-                routeMapObjectSource.addObject(item: routeMapObject)
+                self.routeMapObjectSource.addObject(item: routeMapObject)
 
                 if index == 0 {
                     break
@@ -239,9 +249,9 @@ final class MapObjectService {
     }
 
     func startNavigation(endPoint: DGis.GeoPoint) {
-        // guard let currentRoute = self.currentRoute else {
-        //     return
-        // }
+        guard let currentRoute = self.currentRoute else {
+            return
+        }
 
         let routeBuildOptions = RouteBuildOptions(
             finishPoint: RouteSearchPoint(coordinates: endPoint),
@@ -249,11 +259,42 @@ final class MapObjectService {
         )
 
         do {
+            try self.navigationManager.voiceSelector.voice = nil
             // try self.navigationManager.startSimulation(routeBuildOptions: routeBuildOptions, trafficRoute: currentRoute)
             try self.navigationManager.start(routeBuildOptions: routeBuildOptions)
+
+            self.navigationManager.uiModel.routePositionChannel.sink { position in
+                if let position = position {
+                    self.currentPosition = position
+                    self.remainingDistance = self.convertMillimetersToKilometers(
+                        millimeters: self.navigationManager.uiModel.route.route.geometry.length.millimeters - position.distance.millimeters)
+                }
+            }
+
+            self.navigationManager.uiModel.dynamicRouteInfoChannel.sink { info in
+                if let routePoint = self.currentPosition {
+                    let durationString = self.formatTimeInterval(info.traffic.durations.calculateDuration(routePoint: routePoint))
+                    if let distance = self.remainingDistance {
+                        self.flutterApi.onRoutePositionChanged(duration: durationString, distance: "\(distance)"){}
+                    }
+                }
+            }
         } catch {
+            self.flutterApi.onCatchErrorMessage(message: "Failed to start navigation: \(error)"){}
             print("Failed to start navigation: \(error)")
         }
+    }
+
+    func convertMillimetersToKilometers(millimeters: Int64) -> String {
+        let kilometers = Double(millimeters) / 1_000_000.0
+        return String(format: "%.1f", kilometers)
+    }
+
+    func formatTimeInterval(_ interval: TimeInterval) -> String {
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+        let seconds = Int(interval) % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
     func stopNavigation(){

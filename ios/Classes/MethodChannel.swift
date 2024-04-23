@@ -834,4 +834,11 @@ class PluginFlutterApi {
       completion()
     }
   }
+  /// Коллбэк для распечатки ошибок
+  func onCatchErrorMessage(message messageArg: String, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "pro.flown.PluginFlutterApi_\(id).onCatchErrorMessage", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([messageArg] as [Any?]) { _ in
+      completion()
+    }
+  }
 }
