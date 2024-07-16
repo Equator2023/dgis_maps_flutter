@@ -256,7 +256,7 @@ class DgisMapController internal constructor(
         updates.toAdd.forEach { markerData ->
             val newMarker = toMarker(sdkContext, markerData!!)
             markers[markerData!!.markerId.value] = newMarker
-            objectManager.addObject(newMarker)
+            newMarker?.let { marker -> objectManager.addObject(marker)}
         }
     }
 
@@ -266,7 +266,7 @@ class DgisMapController internal constructor(
     }
 
     override fun removeMarker(marker: DataMarker) {
-        objectManager.removeObject(markers[marker.markerId.value])
+        objectManager.removeObject(markers[marker.markerId.value]!!)
         markers.remove(marker.markerId.value)
     }
 
