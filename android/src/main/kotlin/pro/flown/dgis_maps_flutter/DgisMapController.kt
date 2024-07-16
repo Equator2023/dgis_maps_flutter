@@ -61,6 +61,8 @@ class DgisMapController internal constructor(
     private var currentPosition: RoutePoint? = null
     private var remainingDistance: String? = null
 
+    private val markers = mutableMapOf<String, Marker>()
+
     init {
         sdkContext = DGis.initialize(context.applicationContext)
         val compassSource = CustomCompassManager(context.applicationContext)
@@ -247,12 +249,25 @@ class DgisMapController internal constructor(
     }
 
     override fun updateMarkers(updates: DataMarkerUpdates) {
-        objectManager.removeObjects(updates.toRemove.map { toMarker(sdkContext, it!!) })
-        objectManager.addObjects(updates.toAdd.map { toMarker(sdkContext, it!!) })
+        objectManager.removeObjects(markers.values.toList())
+
+        markers.clear()
+
+        updates.toAdd.forEach { markerData ->
+            val newMarker = toMarker(sdkContext, markerData!!)
+            markers[markerData!!.markerId.value] = newMarker
+            objectManager.addObject(newMarker)
+        }
     }
+
 
     override fun removeAllMarkers() {
         objectManager.removeAll();
+    }
+
+    override fun removeMarker(marker: DataMarker) {
+        objectManager.removeObject(markers[marker.markerId.value])
+        markers.remove(marker.markerId.value)
     }
 
     override fun createRoute(startPoint: DataGeoPoint, endPoint: DataGeoPoint) {

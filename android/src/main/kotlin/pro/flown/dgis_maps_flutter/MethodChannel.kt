@@ -591,6 +591,8 @@ interface PluginHostApi {
   fun getVisibleArea(): DataLatLngBounds
   /** Удаление всех маркеров на карте */
   fun removeAllMarkers()
+  /** Удаление маркера на карте по ID */
+  fun removeMarker(marker: DataMarker)
   /** Начать навигацию по маршруту */
   fun startNavigation(endPoint: DataGeoPoint)
   /** Остановить навигацию по маршруту */
@@ -766,6 +768,25 @@ interface PluginHostApi {
             var wrapped = listOf<Any?>()
             try {
               api.removeAllMarkers()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Error) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "pro.flown.PluginHostApi_$id.removeMarker", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            var wrapped = listOf<Any?>()
+            try {
+              val args = message as List<Any?>
+              val markerArg = args[0] as DataMarker
+              api.removeMarker(markerArg)
               wrapped = listOf<Any?>(null)
             } catch (exception: Error) {
               wrapped = wrapError(exception)

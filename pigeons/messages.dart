@@ -275,6 +275,9 @@ abstract class PluginHostApi {
   /// Удаление всех маркеров на карте
   void removeAllMarkers();
 
+  /// Удаление маркера на карте по ID
+  void removeMarker(DataMarker marker);
+
   /// Начать навигацию по маршруту
   void startNavigation(DataGeoPoint endPoint);
 

@@ -529,6 +529,8 @@ protocol PluginHostApi {
   func getVisibleArea() -> DataLatLngBounds
   /// Удаление всех маркеров на карте
   func removeAllMarkers()
+  /// Удаление маркера на карте по ID
+  func removeMarker(marker: DataMarker)
   /// Начать навигацию по маршруту
   func startNavigation(endPoint: DataGeoPoint)
   /// Остановить навигацию по маршруту
@@ -666,6 +668,18 @@ class PluginHostApiSetup {
       }
     } else {
       removeAllMarkersChannel.setMessageHandler(nil)
+    }
+    /// Удаление маркера на карте по ID
+    let removeMarkerChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).removeMarker", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      removeMarkerChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let markerArg = args[0] as! DataMarker
+        api.removeMarker(marker: markerArg)
+        reply(wrapResult(nil))
+      }
+    } else {
+      removeMarkerChannel.setMessageHandler(nil)
     }
     /// Начать навигацию по маршруту
     let startNavigationChannel = FlutterBasicMessageChannel(name: "pro.flown.PluginHostApi_\(id).startNavigation", binaryMessenger: binaryMessenger, codec: codec)

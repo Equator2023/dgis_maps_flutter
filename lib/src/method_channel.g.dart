@@ -777,6 +777,29 @@ class PluginHostApi {
     }
   }
 
+  /// Удаление маркера на карте по ID
+  Future<void> removeMarker(DataMarker arg_marker) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'pro.flown.PluginHostApi_$id.removeMarker', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_marker]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   /// Начать навигацию по маршруту
   Future<void> startNavigation(DataGeoPoint arg_endPoint) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(

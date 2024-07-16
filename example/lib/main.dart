@@ -120,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> addMarker() async {
-    // print(mId);
     if (mId < points.length) {
       markers.add(Marker(
         markerId: MapObjectId('m${mId}'),
@@ -135,6 +134,21 @@ class _MyHomePageState extends State<MyHomePage> {
       mId++;
     }
 
+    setState(() {});
+  }
+
+  Future<void> removeMarker() async {
+    if (mId > 0) {
+      if (markers.isNotEmpty) {
+        markers.remove(markers.last);
+        mId--;
+        setState(() {});
+      }
+    }
+  }
+
+  Future<void> removeAllMarkers() async {
+    markers.clear();
     setState(() {});
   }
 
@@ -270,6 +284,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   TextButton(
                     onPressed: addMarker,
                     child: const Text('addMarker'),
+                  ),
+                  TextButton(
+                    onPressed: removeMarker,
+                    child: const Text('removeMarker'),
+                  ),
+                  TextButton(
+                    onPressed: removeAllMarkers,
+                    child: const Text('removeAllMarkers'),
                   ),
                   TextButton(
                     onPressed: toggleMyLocation,

@@ -36,6 +36,12 @@ class DGisMapController {
     await _api.removeAllMarkers();
   }
 
+  // Удаление маркера по ID
+  Future<void> removeMarker(Marker marker) async {
+    await _completer.future;
+    await _api.removeMarker(marker);
+  }
+
   /// Получение текущей позиции карты [CameraPosition]
   Future<void> createRoute(GeoPoint startPoint, GeoPoint endPoint) async {
     await _completer.future;
