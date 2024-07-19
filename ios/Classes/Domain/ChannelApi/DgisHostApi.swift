@@ -102,6 +102,10 @@ class DgisHostApi : NSObject, PluginHostApi {
     func removeAllMarkers(){
         mapObjectService.removeAllMarkers()
     }
+
+    func removeMarker(marker: DataMarker) {
+        mapObjectService.removeMarker(marker: marker)
+    }
     
     func updatePolylines(updates: DataPolylineUpdates) {
         mapObjectService.updatePolylines(polylineUpdates: updates)
