@@ -50,7 +50,7 @@ final class MapObjectService {
 
     private var currentPosition: RoutePoint?
     private var remainingDistance: String?
-    var markers: [String: DGis.Marker] = [:]
+    private var markers: [String: DGis.Marker] = [:]
     
     // private lazy var mapObjectManager: MapObjectManager = MapObjectManager(map: self.mapFactory.map)
     private lazy var mapObjectManager: MapObjectManager = MapObjectManager.withClustering(
@@ -110,15 +110,15 @@ final class MapObjectService {
     
     
     func updateMarkers(markerUpdates: DataMarkerUpdates) {
-         mapObjectManager.removeObjects(Array(markers.values))
+         mapObjectManager.removeObjects(objects: Array(markers.values))
          markers.removeAll()
 
          for markerData in markerUpdates.toAdd {
              if let data = markerData {
-                 let newMarker = data2Marker(data: data)
+                 let newMarker = data2Marker(data: data!)
                  markers[data.markerId.value] = newMarker
                  if let marker = newMarker {
-                     mapObjectManager.addObject(marker)
+                     mapObjectManager.addObject(item: marker)
                  }
              }
          }
@@ -130,7 +130,7 @@ final class MapObjectService {
 
     func removeMarker(marker: DataMarker) {
         if let markerToRemove = markers[marker.markerId.value] {
-            mapObjectManager.removeObject(markerToRemove)
+            mapObjectManager.removeObject(item: markerToRemove)
             markers.removeValue(forKey: marker.markerId.value)
         }
     }
