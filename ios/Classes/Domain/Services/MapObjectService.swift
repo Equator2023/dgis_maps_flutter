@@ -114,11 +114,11 @@ final class MapObjectService {
          markers.removeAll()
 
          for markerData in markerUpdates.toAdd {
-             if let data = markerData, let markerId = data.markerId?.value {
+             if let data = markerData {
                  let newMarker = data2Marker(data: data)
-                 markers[markerId] = newMarker
+                 markers[data.markerId!.value] = newMarker
                  if let marker = newMarker {
-                     mapObjectManager.addObject(marker)
+                     mapObjectManager.addObject(item: marker)
                  }
              }
          }
