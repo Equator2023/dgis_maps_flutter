@@ -29,6 +29,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace "pro.flown.dgis_maps_flutter"
     compileSdkVersion 31
 
     compileOptions {
